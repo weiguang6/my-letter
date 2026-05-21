@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>私密信件</title>
+
+<style>
+body {
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #1a1a2e;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  padding-top: 80px;
+}
+
+.container {
+  width: 360px;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.question {
+  margin-bottom: 20px;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+  outline: none;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+#letter {
+  margin-top: 30px;
+  white-space: pre-wrap;
+  line-height: 2;
+  font-size: 16px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h2>🔒 私密信件</h2>
+
+  <div class="question">
+    问题一：送你的第一份礼物是什么？
+    <input id="a1" placeholder="请输入答案">
+  </div>
+
+  <div class="question">
+    问题二：我们第一次见面在哪座城市？
+    <input id="a2" placeholder="请输入答案">
+  </div>
+
+  <button onclick="unlock()">查看信件</button>
+
+  <div id="letter"></div>
+</div>
+
+<script>
+async function unlock() {
+  const a1 = document.getElementById('a1').value.trim();
+  const a2 = document.getElementById('a2').value.trim();
+
+  const res = await fetch('/api/unlock', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ a1, a2 })
+  });
+
+  const data = await res.json();
+
+  if (data.ok) {
+    document.getElementById('letter').innerText = data.content;
+  } else {
+    alert('答案不对哦～');
+  }
+}
+</script>
+</body>
+</html>
