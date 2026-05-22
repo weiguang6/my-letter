@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>双重秘境 · 信启双锁</title>
+    <style>
+        /* ========== CSS 样式 ========== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #e8dccc;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: #fffdf7;
+            border-radius: 48px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .panel { padding: 36px 32px; }
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #f0e2cc;
+            padding-bottom: 16px;
+        }
+        .step {
+            font-size: 14px;
+            color: #c7ad85;
+            font-weight: 500;
+            position: relative;
+        }
+        .step.active { color: #7a5a3a; }
+        .step.active::after {
+            content: '';
+            position: absolute;
+            bottom: -18px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #b68b60;
+        }
+        .icon { font-size: 56px; text-align: center; margin-bottom: 12px; }
+        h2 { text-align: center; color: #7a5a3a; font-size: 26px; margin-bottom: 8px; }
+        .sub { text-align: center; color: #b4926a; font-size: 14px; margin-bottom: 28px; font-style: italic; }
+        .input-field {
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 16px;
+            border: 2px solid #e9dccd;
+            border-radius: 60px;
+            outline: none;
+            background: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .input-field:focus { border-color: #b68b60; box-shadow: 0 0 0 3px rgba(182, 139, 96, 0.2); }
+        button {
+            background: #9b7e5c;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 60px;
+            width: 100%;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover { background: #7d623e; transform: scale(0.98); }
+        .error-box {
+            background: #ffe8df;
+            color: #c46b3f;
+            padding: 10px;
+            border-radius: 40px;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 16px;
+        }
+        .hidden { display: none; }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #b99e7a;
+        }
+        .letter-content { background: #fffaf0; }
+        .letter-header {
+            text-align: center;
+            border-bottom: 1px solid #ecdbba;
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+        }
+        .letter-header h3 { font-size: 28px; color: #7a5a3a; margin-bottom: 6px; }
+        .letter-body {
+            line-height: 1.85;
+            color: #2e2a24;
+            text-align: justify;
+            min-height: 250px;
+            background: #fffef5;
+            padding: 24px;
+            border-radius: 24px;
+            border: 1px solid #f0e2cc;
+        }
+        .reply-area {
+            margin-top: 28px;
+            border-top: 2px dotted #e6cfaa;
+            padding-top: 24px;
+        }
+        .reply-area h4 { color: #8a6946; margin-bottom: 16px; text-align: center; font-size: 18px; }
+        .reply-input, .reply-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border: 1px solid #e6cfaa;
+            border-radius: 48px;
+            background: #fffef8;
+            font-family: inherit;
+            outline: none;
+        }
+        .reply-textarea { border-radius: 24px; resize: vertical; min-height: 90px; }
+        .logout-btn {
+            background: #cfbc9a;
+            color: #5e3e22;
+            margin-top: 20px;
+            width: auto;
+            display: inline-block;
+            padding: 10px 28px;
+        }
+        .flex-center { text-align: center; }
+        footer {
+            font-size: 11px;
+            text-align: center;
+            color: #b5936e;
+            margin-top: 20px;
+            padding-top: 12px;
+            border-top: 1px solid #f0e2cf;
+        }
+        .hint-text { font-size: 12px; color: #b99e7a; text-align: center; margin-top: 18px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 第一重验证面板 -->
+    <div id="step1Panel" class="panel">
+        <div class="step-indicator">
+            <span class="step active">第一重 · 钥石</span>
+            <span class="step">第二重 · 密契</span>
+        </div>
+        <div class="icon">🔒✋</div>
+        <h2>封缄之地</h2>
+        <div class="sub">请通过第一道验证</div>
+        <input type="text" id="step1Input" class="input-field" placeholder="第一重密令" autocomplete="off">
+        <button id="step1Btn">➤ 验证第一道锁</button>
+        <div id="step1Error" class="error-box hidden"></div>
+        <div class="hint-text">⚡ 只有持有正确密令的人才能继续</div>
+    </div>
+
+    <!-- 第二重验证面板 -->
+    <div id="step2Panel" class="panel hidden">
+        <div class="step-indicator">
+            <span class="step">第一重 · 钥石</span>
+            <span class="step active">第二重 · 密契</span>
+        </div>
+        <div class="icon">🔐🗝️</div>
+        <h2>第二道秘境</h2>
+        <div class="sub">再输入另一组密语</div>
+        <input type="text" id="step2Input" class="input-field" placeholder="第二重密令" autocomplete="off">
+        <button id="step2Btn">➤ 验证第二道锁</button>
+        <div id="step2Error" class="error-box hidden"></div>
+        <div class="hint-text">🔑 双重守护，双重信任</div>
+    </div>
+
+    <!-- 信件加载中 / 内容区域 -->
+    <div id="contentPanel" class="letter-content hidden">
+        <div class="panel">
+            <div class="letter-header">
+                <h3>📜 密信 · 亲启</h3>
+                <div class="letter-date" id="letterDate"></div>
+            </div>
+            <div id="letterBody" class="letter-body">
+                <div class="loading">🔐 正在加载信件...</div>
+            </div>
+
+            <!-- 留言回复区 -->
+            <div class="reply-area">
+                <h4>📬 回音壁 · 给守秘人留言</h4>
+                <form id="messageForm" action="https://formbold.com/s/9V0d2" method="POST">
+                    <input type="text" name="name" class="reply-input" placeholder="你的名字 / 昵称 (可选)">
+                    <input type="email" name="email" class="reply-input" placeholder="你的邮箱 (可选，以便回信)">
+                    <textarea name="message" class="reply-textarea" placeholder="请写下你想说的话..." required></textarea>
+                    <button type="submit" id="sendMsgBtn" style="background:#b48c54;">💌 寄出回音</button>
+                    <div id="formFeedback" style="margin-top: 12px; font-size: 13px; text-align:center;"></div>
+                </form>
+                <div class="hint-text">回音将会直接送达守秘人（开发者）</div>
+            </div>
+
+            <div class="flex-center">
+                <button id="resetAllBtn" class="logout-btn">🔒 彻底退出 / 重新验证</button>
+            </div>
+            <footer>双重验证保护 · 关闭页面后需重新输入全部密码</footer>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========== 前端逻辑 ==========
+    // 注意：信件内容不在前端代码中，全部从后端API获取
+    const STEP1_SECRETS = ["启明星", "OpenSesame", "芝兰"];
+    const STEP2_SECRETS = ["月光码头", "2026@Gate", "玉树"];
+    
+    // API 端点（部署后自动适配）
+    const API_URL = '/api/letter';
+
+    // sessionStorage 存储 key（关闭标签页后自动清除）
+    const SESSION_TOKEN_KEY = "double_gate_session";
+
+    // DOM 元素
+    const step1Panel = document.getElementById('step1Panel');
+    const step2Panel = document.getElementById('step2Panel');
+    const contentPanel = document.getElementById('contentPanel');
+    const step1Input = document.getElementById('step1Input');
+    const step2Input = document.getElementById('step2Input');
+    const step1Btn = document.getElementById('step1Btn');
+    const step2Btn = document.getElementById('step2Btn');
+    const step1Error = document.getElementById('step1Error');
+    const step2Error = document.getElementById('step2Error');
+    const resetAllBtn = document.getElementById('resetAllBtn');
+    const messageForm = document.getElementById('messageForm');
+    const formFeedback = document.getElementById('formFeedback');
+    const letterBody = document.getElementById('letterBody');
+    const letterDateSpan = document.getElementById('letterDate');
+
+    function showError(element, message) {
+        element.innerHTML = message;
+        element.classList.remove('hidden');
+        setTimeout(() => {
+            element.classList.add('hidden');
+            element.innerHTML = '';
+        }, 2800);
+    }
+
+    function clearError(element) {
+        element.classList.add('hidden');
+        element.innerHTML = '';
+    }
+
+    // 从后端获取信件内容（需要提供双密码验证）
+    async function fetchLetterContent(step1Pass, step2Pass) {
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    step1: step1Pass, 
+                    step2: step2Pass 
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                return { success: true, content: data.content, date: data.date };
+            } else {
+                return { success: false, error: data.error || '验证失败' };
+            }
+        } catch (err) {
+            return { success: false, error: '网络错误，请稍后重试' };
+        }
+    }
+
+    // 加载并显示信件
+    async function loadAndDisplayLetter(step1Pass, step2Pass) {
+        // 显示加载状态
+        letterBody.innerHTML = '<div class="loading">📡 正在从秘境加载信件...</div>';
+        
+        const result = await fetchLetterContent(step1Pass, step2Pass);
+        
+        if (result.success) {
+            letterDateSpan.innerText = result.date;
+            letterBody.innerHTML = result.content;
+            // 存储会话令牌（可选，用于刷新页面保持登录）
+            sessionStorage.setItem(SESSION_TOKEN_KEY, JSON.stringify({
+                step1: step1Pass,
+                step2: step2Pass,
+                timestamp: Date.now()
+            }));
+            return true;
+        } else {
+            letterBody.innerHTML = `<div class="loading" style="color:#c46b3f;">❌ ${result.error}<br>请返回重新验证</div>`;
+            return false;
+        }
+    }
+
+    // 第一重验证
+    function verifyStep1() {
+        const inputVal = step1Input.value.trim();
+        if (!inputVal) {
+            showError(step1Error, '❌ 请输入第一重密令');
+            step1Input.focus();
+            return;
+        }
+        if (STEP1_SECRETS.includes(inputVal)) {
+            // 保存第一重密码到临时变量
+            window._tempStep1 = inputVal;
+            step1Panel.classList.add('hidden');
+            step2Panel.classList.remove('hidden');
+            step1Input.value = '';
+            clearError(step1Error);
+            step2Input.focus();
+        } else {
+            showError(step1Error, '❌ 密令错误，无法通过第一道锁');
+            step1Input.value = '';
+            step1Input.focus();
+        }
+    }
+
+    // 第二重验证 + 请求后端获取信件
+    async function verifyStep2() {
+        const inputVal = step2Input.value.trim();
+        if (!inputVal) {
+            showError(step2Error, '❌ 请输入第二重密令');
+            step2Input.focus();
+            return;
+        }
+        
+        const step1Pass = window._tempStep1;
+        if (!step1Pass) {
+            showError(step2Error, '❌ 会话已过期，请重新从第一重开始');
+            fullReset();
+            return;
+        }
+        
+        if (STEP2_SECRETS.includes(inputVal)) {
+            // 显示加载面板
+            step2Panel.classList.add('hidden');
+            contentPanel.classList.remove('hidden');
+            step2Input.value = '';
+            clearError(step2Error);
+            
+            // 从后端获取信件内容
+            const success = await loadAndDisplayLetter(step1Pass, inputVal);
+            if (!success) {
+                // 加载失败，退回第二重
+                step2Panel.classList.remove('hidden');
+                contentPanel.classList.add('hidden');
+            }
+        } else {
+            showError(step2Error, '❌ 密令错误，第二道锁未能开启');
+            step2Input.value = '';
+            step2Input.focus();
+        }
+    }
+
+    // 彻底退出
+    function fullReset() {
+        sessionStorage.removeItem(SESSION_TOKEN_KEY);
+        window._tempStep1 = null;
+        step1Panel.classList.remove('hidden');
+        step2Panel.classList.add('hidden');
+        contentPanel.classList.add('hidden');
+        step1Input.value = '';
+        step2Input.value = '';
+        clearError(step1Error);
+        clearError(step2Error);
+        step1Input.focus();
+    }
+
+    // 检查是否有有效的会话令牌（刷新页面时自动恢复）
+    async function checkExistingSession() {
+        const saved = sessionStorage.getItem(SESSION_TOKEN_KEY);
+        if (saved) {
+            try {
+                const { step1, step2 } = JSON.parse(saved);
+                if (step1 && step2) {
+                    // 尝试用保存的密码重新获取信件
+                    step1Panel.classList.add('hidden');
+                    step2Panel.classList.add('hidden');
+                    contentPanel.classList.remove('hidden');
+                    const success = await loadAndDisplayLetter(step1, step2);
+                    if (!success) {
+                        fullReset();
+                    }
+                    return;
+                }
+            } catch(e) {}
+        }
+        fullReset();
+    }
+
+    // 绑定事件
+    step1Btn.addEventListener('click', verifyStep1);
+    step2Btn.addEventListener('click', verifyStep2);
+    if (resetAllBtn) resetAllBtn.addEventListener('click', fullReset);
+    
+    step1Input.addEventListener('keypress', (e) => { if (e.key === 'Enter') verifyStep1(); });
+    step2Input.addEventListener('keypress', (e) => { if (e.key === 'Enter') verifyStep2(); });
+
+    // 页面启动
+    checkExistingSession();
+
+    // 留言表单
+    if (messageForm) {
+        messageForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('sendMsgBtn');
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = '发送中...';
+            submitBtn.disabled = true;
+            const formData = new FormData(messageForm);
+            try {
+                const response = await fetch(messageForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (response.ok) {
+                    formFeedback.innerHTML = '<span style="color:#4a7342;">✅ 回音已寄出</span>';
+                    messageForm.reset();
+                } else throw new Error('发送失败');
+            } catch (err) {
+                formFeedback.innerHTML = '<span style="color:#bc6f42;">⚠️ 发送失败</span>';
+            } finally {
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+                setTimeout(() => { if(formFeedback) formFeedback.innerHTML = ''; }, 5000);
+            }
+        });
+    }
+</script>
+</body>
+</html>
