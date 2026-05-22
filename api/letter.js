@@ -1,65 +1,200 @@
-// ========== Vercel Serverless Function ==========
-// 部署路径：api/letter.js
-// 这个文件运行在云端，信件内容存储在这里，不会暴露给前端
+import nodemailer from 'nodemailer';
 
-// 正确的密码组合（与前端保持一致）
+// ========== 多封信件内容 ==========
+const LETTERS = [
+    {
+        title: "第一封信 · 初见",
+        content: `
+            <p>见信如晤。</p>
+            <p>这是第一封信，写给第一次解锁的你。愿你保持好奇与温柔。</p>
+            <div class="signature">—— 守秘人</div>
+        `
+    },
+    {
+        title: "第二封信 · 重逢",
+        content: `
+            <p>又见面了。</p>
+            <p>这是第二封信，藏着一些秘密：山有峰顶，海有彼岸。</p>
+            <div class="signature">—— 守秘人</div>
+        `
+    },
+    {
+        title: "第三封信 · 远方",
+        content: `
+            <p>当你看完这封信时，你已经走过了三段旅程。</p>
+            <p>愿你在生活中也如此坚定。</p>
+            <div class="signature">—— 守秘人</div>
+        `
+    }
+];
+
+// ========== 双重验证密码 ==========
 const STEP1_SECRETS = ["启明星", "OpenSesame", "芝兰"];
 const STEP2_SECRETS = ["月光码头", "2026@Gate", "玉树"];
 
-// ========== 信件内容（核心秘密，只存在于后端） ==========
-// 您可以随意修改这里的 HTML 内容，这是访客最终看到的信件
-const LETTER_CONTENT = `
-    <p>见信如晤。</p>
-    <p>当你看到这封信时，说明你已经通过了双重验证，并且这些文字是从服务器端安全加载的。查看网页源代码只能看到加载逻辑，看不到信件原文。</p>
-    <p>写这封信时，窗外石榴花开得正盛，晚风穿过回廊，带来草木的清气。我想把这种宁静的片刻分享给你——在这个信息纷杂的时代，还能静心解锁一封远方的信，已是难得。</p>
-    <p>随信附上一段话：<strong>"山有峰顶，海有彼岸。漫漫长途，终有回转。余味苦涩，终有回甘。"</strong> 愿你在生活的旅途中，也能穿越一道道关卡，抵达属于自己的丰饶之地。</p>
-    <div class="signature" style="text-align:right; margin-top:24px; font-style:italic;">
-        守秘人<br>
-        于 双锁书斋
-    </div>
-`;
+// ========== 错误限制配置 ==========
+const MAX_FAIL_ATTEMPTS = 5;
+const LOCK_DURATION = 15 * 60 * 1000; // 15分钟
+const failRecords = new Map(); // IP -> { count, lockUntil }
 
-// 获取当前日期
-function getCurrentDate() {
-    const now = new Date();
-    return `${now.getFullYear()}年 · ${now.getMonth() + 1}月${now.getDate()}日`;
+// ========== 访问统计（内存计数，重启归零） ==========
+let visitCount = 0;
+
+// ========== 邮件配置（从环境变量读取） ==========
+const SMTP_USER = process.env.SMTP_USER;
+const SMTP_PASS = process.env.SMTP_PASS;
+const TO_EMAIL = process.env.TO_EMAIL;
+
+let transporter = null;
+if (SMTP_USER && SMTP_PASS) {
+    transporter = nodemailer.createTransport({
+        host: "smtp.qq.com",
+        port: 465,
+        secure: true,
+        auth: { user: SMTP_USER, pass: SMTP_PASS },
+    });
 }
 
-// Vercel 云函数入口
+// ========== 辅助函数 ==========
+function getClientIp(req) {
+    return req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || 'unknown';
+}
+
+function isLocked(ip) {
+    const record = failRecords.get(ip);
+    if (record && record.lockUntil && record.lockUntil > Date.now()) {
+        return { locked: true, remaining: Math.ceil((record.lockUntil - Date.now()) / 60000) };
+    }
+    return { locked: false };
+}
+
+function recordFailure(ip) {
+    const now = Date.now();
+    let record = failRecords.get(ip);
+    if (!record) {
+        record = { count: 1, lockUntil: null };
+    } else {
+        if (record.lockUntil && record.lockUntil < now) {
+            record = { count: 1, lockUntil: null };
+        } else {
+            record.count++;
+            if (record.count >= MAX_FAIL_ATTEMPTS && !record.lockUntil) {
+                record.lockUntil = now + LOCK_DURATION;
+            }
+        }
+    }
+    failRecords.set(ip, record);
+    return record;
+}
+
+function clearFailures(ip) {
+    failRecords.delete(ip);
+}
+
+async function sendFeedbackEmail(name, email, message) {
+    if (!transporter) return false;
+    try {
+        await transporter.sendMail({
+            from: `"网站留言" <${SMTP_USER}>`,
+            to: TO_EMAIL,
+            subject: `来自 ${name} 的新留言`,
+            text: `称呼：${name}\n邮箱：${email}\n留言：\n${message}`,
+            html: `<p>称呼：${name}</p><p>邮箱：${email}</p><p>留言：</p><p>${message.replace(/\n/g, '<br>')}</p>`
+        });
+        return true;
+    } catch (e) {
+        console.error("邮件发送失败:", e);
+        return false;
+    }
+}
+
+function incrementVisitCount() {
+    visitCount++;
+    return visitCount;
+}
+
+// ========== Vercel 函数入口 ==========
 export default async function handler(req, res) {
-    // 设置 CORS 头（允许跨域，虽然同域下不需要）
+    // CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    
-    // 处理预检请求
+
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
-    
-    // 只接受 POST 请求
+
+    // GET /api/stats 返回访问统计
+    if (req.method === 'GET') {
+        if (req.url === '/api/stats') {
+            return res.status(200).json({ visits: visitCount });
+        }
+        return res.status(200).json({ message: "API is running" });
+    }
+
     if (req.method !== 'POST') {
         return res.status(405).json({ success: false, error: '方法不允许' });
     }
-    
-    const { step1, step2 } = req.body;
-    
-    // 验证密码
+
+    const body = req.body;
+    const ip = getClientIp(req);
+
+    // 处理留言提交
+    if (body.message !== undefined && body.name && body.email) {
+        const { name, email, message } = body;
+        const success = await sendFeedbackEmail(name, email, message);
+        if (success) {
+            return res.status(200).json({ success: true, message: '留言已寄出' });
+        } else {
+            return res.status(500).json({ success: false, error: '邮件服务异常' });
+        }
+    }
+
+    // 处理双重验证
+    const { step1, step2, letterIndex = 0 } = body;
+
+    // 检查锁定
+    const lock = isLocked(ip);
+    if (lock.locked) {
+        return res.status(429).json({ success: false, error: `尝试次数过多，请 ${lock.remaining} 分钟后再试`, locked: true });
+    }
+
     if (!step1 || !step2) {
         return res.status(400).json({ success: false, error: '请提供完整的验证信息' });
     }
-    
+
     const isStep1Valid = STEP1_SECRETS.includes(step1);
     const isStep2Valid = STEP2_SECRETS.includes(step2);
-    
+
     if (!isStep1Valid || !isStep2Valid) {
-        return res.status(401).json({ success: false, error: '密令错误，无法获取信件' });
+        const record = recordFailure(ip);
+        const remainingAttempts = MAX_FAIL_ATTEMPTS - record.count;
+        if (record.lockUntil) {
+            return res.status(429).json({ success: false, error: '密码错误次数过多，已锁定15分钟', locked: true });
+        }
+        return res.status(401).json({ success: false, error: `密令错误`, remainingAttempts: Math.max(0, remainingAttempts) });
     }
-    
-    // 验证通过，返回信件内容
+
+    // 验证成功，清除失败记录
+    clearFailures(ip);
+
+    // 增加访问计数
+    const totalVisits = incrementVisitCount();
+
+    // 获取信件
+    const idx = Math.min(Math.max(0, letterIndex), LETTERS.length - 1);
+    const letter = LETTERS[idx];
+    const dateStr = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+
     return res.status(200).json({
         success: true,
-        content: LETTER_CONTENT,
-        date: getCurrentDate()
+        content: letter.content,
+        title: letter.title,
+        date: dateStr,
+        visits: totalVisits
     });
 }
+
+export const config = {
+    runtime: 'nodejs',
+};
