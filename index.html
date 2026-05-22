@@ -5,10 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>双重秘境 · 信启双锁</title>
     <style>
-        /* ========== CSS 样式 ========== */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* CSS 变量 - 主题色 */
+        :root {
+            --bg-body: #e8dccc;
+            --card-bg: #fffdf7;
+            --text-primary: #2e2a24;
+            --text-secondary: #7a5a3a;
+            --border-light: #f0e2cc;
+            --input-bg: white;
+            --button-bg: #9b7e5c;
+            --button-hover: #7d623e;
+            --error-bg: #ffe8df;
+            --error-color: #c46b3f;
+        }
+        body.dark {
+            --bg-body: #1a1e2c;
+            --card-bg: #2a2e3e;
+            --text-primary: #e8e6e1;
+            --text-secondary: #c0b8a0;
+            --border-light: #3a4050;
+            --input-bg: #3a4050;
+            --button-bg: #5a6e8a;
+            --button-hover: #4a5e7a;
+            --error-bg: #4a2e2e;
+            --error-color: #e8a080;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.2s, color 0.2s; }
         body {
-            background: #e8dccc;
+            background: var(--bg-body);
             font-family: 'Georgia', 'Times New Roman', serif;
             min-height: 100vh;
             display: flex;
@@ -19,7 +43,7 @@
         .container {
             max-width: 700px;
             width: 100%;
-            background: #fffdf7;
+            background: var(--card-bg);
             border-radius: 48px;
             box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
             overflow: hidden;
@@ -30,7 +54,7 @@
             justify-content: center;
             gap: 40px;
             margin-bottom: 30px;
-            border-bottom: 1px solid #f0e2cc;
+            border-bottom: 1px solid var(--border-light);
             padding-bottom: 16px;
         }
         .step {
@@ -39,7 +63,7 @@
             font-weight: 500;
             position: relative;
         }
-        .step.active { color: #7a5a3a; }
+        .step.active { color: var(--text-secondary); }
         .step.active::after {
             content: '';
             position: absolute;
@@ -50,22 +74,23 @@
             background: #b68b60;
         }
         .icon { font-size: 56px; text-align: center; margin-bottom: 12px; }
-        h2 { text-align: center; color: #7a5a3a; font-size: 26px; margin-bottom: 8px; }
+        h2 { text-align: center; color: var(--text-secondary); font-size: 26px; margin-bottom: 8px; }
         .sub { text-align: center; color: #b4926a; font-size: 14px; margin-bottom: 28px; font-style: italic; }
         .input-field {
             width: 100%;
             padding: 14px 20px;
             font-size: 16px;
-            border: 2px solid #e9dccd;
+            border: 2px solid var(--border-light);
             border-radius: 60px;
             outline: none;
-            background: white;
+            background: var(--input-bg);
             text-align: center;
             margin-bottom: 20px;
+            color: var(--text-primary);
         }
         .input-field:focus { border-color: #b68b60; box-shadow: 0 0 0 3px rgba(182, 139, 96, 0.2); }
         button {
-            background: #9b7e5c;
+            background: var(--button-bg);
             color: white;
             border: none;
             padding: 12px 20px;
@@ -76,10 +101,10 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        button:hover { background: #7d623e; transform: scale(0.98); }
+        button:hover { background: var(--button-hover); transform: scale(0.98); }
         .error-box {
-            background: #ffe8df;
-            color: #c46b3f;
+            background: var(--error-bg);
+            color: var(--error-color);
             padding: 10px;
             border-radius: 40px;
             font-size: 13px;
@@ -92,39 +117,40 @@
             padding: 40px;
             color: #b99e7a;
         }
-        .letter-content { background: #fffaf0; }
+        .letter-content { background: var(--card-bg); }
         .letter-header {
             text-align: center;
-            border-bottom: 1px solid #ecdbba;
+            border-bottom: 1px solid var(--border-light);
             padding-bottom: 20px;
             margin-bottom: 24px;
         }
-        .letter-header h3 { font-size: 28px; color: #7a5a3a; margin-bottom: 6px; }
+        .letter-header h3 { font-size: 28px; color: var(--text-secondary); margin-bottom: 6px; }
         .letter-body {
             line-height: 1.85;
-            color: #2e2a24;
+            color: var(--text-primary);
             text-align: justify;
             min-height: 250px;
-            background: #fffef5;
+            background: var(--card-bg);
             padding: 24px;
             border-radius: 24px;
-            border: 1px solid #f0e2cc;
+            border: 1px solid var(--border-light);
         }
         .reply-area {
             margin-top: 28px;
             border-top: 2px dotted #e6cfaa;
             padding-top: 24px;
         }
-        .reply-area h4 { color: #8a6946; margin-bottom: 16px; text-align: center; font-size: 18px; }
+        .reply-area h4 { color: var(--text-secondary); margin-bottom: 16px; text-align: center; font-size: 18px; }
         .reply-input, .reply-textarea {
             width: 100%;
             padding: 12px 16px;
             margin-bottom: 12px;
-            border: 1px solid #e6cfaa;
+            border: 1px solid var(--border-light);
             border-radius: 48px;
-            background: #fffef8;
+            background: var(--input-bg);
             font-family: inherit;
             outline: none;
+            color: var(--text-primary);
         }
         .reply-textarea { border-radius: 24px; resize: vertical; min-height: 90px; }
         .logout-btn {
@@ -142,15 +168,58 @@
             color: #b5936e;
             margin-top: 20px;
             padding-top: 12px;
-            border-top: 1px solid #f0e2cf;
+            border-top: 1px solid var(--border-light);
         }
         .hint-text { font-size: 12px; color: #b99e7a; text-align: center; margin-top: 18px; }
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            width: auto;
+            border-radius: 50%;
+            padding: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .letter-select {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .letter-select button {
+            width: auto;
+            padding: 8px 16px;
+            background: #cfbc9a;
+            color: #5e3e22;
+        }
+        .letter-select button.active {
+            background: #9b7e5c;
+            color: white;
+        }
+        .stats {
+            text-align: center;
+            font-size: 12px;
+            margin-top: 8px;
+            color: #b99e7a;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
     </style>
 </head>
 <body>
-
+<button class="theme-toggle" id="themeToggle">🌙</button>
 <div class="container">
-    <!-- 第一重验证面板 -->
+    <!-- 第一重验证 -->
     <div id="step1Panel" class="panel">
         <div class="step-indicator">
             <span class="step active">第一重 · 钥石</span>
@@ -165,7 +234,7 @@
         <div class="hint-text">⚡ 只有持有正确密令的人才能继续</div>
     </div>
 
-    <!-- 第二重验证面板 -->
+    <!-- 第二重验证 -->
     <div id="step2Panel" class="panel hidden">
         <div class="step-indicator">
             <span class="step">第一重 · 钥石</span>
@@ -180,30 +249,38 @@
         <div class="hint-text">🔑 双重守护，双重信任</div>
     </div>
 
-    <!-- 信件加载中 / 内容区域 -->
+    <!-- 信件内容 -->
     <div id="contentPanel" class="letter-content hidden">
         <div class="panel">
             <div class="letter-header">
-                <h3>📜 密信 · 亲启</h3>
+                <h3 id="letterTitle">📜 密信 · 亲启</h3>
                 <div class="letter-date" id="letterDate"></div>
             </div>
-            <div id="letterBody" class="letter-body">
+            <div id="letterBody" class="letter-body fade-in">
                 <div class="loading">🔐 正在加载信件...</div>
             </div>
 
-            <!-- 留言回复区 -->
+            <!-- 多封信件切换 -->
+            <div class="letter-select" id="letterSelect">
+                <button data-idx="0">第一封信</button>
+                <button data-idx="1">第二封信</button>
+                <button data-idx="2">第三封信</button>
+            </div>
+
+            <!-- 留言区 -->
             <div class="reply-area">
                 <h4>📬 回音壁 · 给守秘人留言</h4>
-                <form id="messageForm" action="https://formbold.com/s/9V0d2" method="POST">
-                    <input type="text" name="name" class="reply-input" placeholder="你的名字 / 昵称 (可选)">
-                    <input type="email" name="email" class="reply-input" placeholder="你的邮箱 (可选，以便回信)">
+                <form id="feedbackForm">
+                    <input type="text" name="name" class="reply-input" placeholder="你的名字 / 昵称" required>
+                    <input type="email" name="email" class="reply-input" placeholder="你的邮箱（以便回信）" required>
                     <textarea name="message" class="reply-textarea" placeholder="请写下你想说的话..." required></textarea>
-                    <button type="submit" id="sendMsgBtn" style="background:#b48c54;">💌 寄出回音</button>
-                    <div id="formFeedback" style="margin-top: 12px; font-size: 13px; text-align:center;"></div>
+                    <button type="submit" id="sendFeedbackBtn" style="background:#b48c54;">💌 寄出回音</button>
+                    <div id="feedbackStatus" style="margin-top: 12px; font-size: 13px; text-align:center;"></div>
                 </form>
                 <div class="hint-text">回音将会直接送达守秘人（开发者）</div>
             </div>
 
+            <div class="stats" id="visitStats"></div>
             <div class="flex-center">
                 <button id="resetAllBtn" class="logout-btn">🔒 彻底退出 / 重新验证</button>
             </div>
@@ -213,17 +290,11 @@
 </div>
 
 <script>
-    // ========== 前端逻辑 ==========
-    // 注意：信件内容不在前端代码中，全部从后端API获取
+    // 配置
     const STEP1_SECRETS = ["启明星", "OpenSesame", "芝兰"];
     const STEP2_SECRETS = ["月光码头", "2026@Gate", "玉树"];
-    
-    // API 端点（部署后自动适配）
     const API_URL = '/api/letter';
-
-    // sessionStorage 存储 key（关闭标签页后自动清除）
-    const SESSION_TOKEN_KEY = "double_gate_session";
-
+    
     // DOM 元素
     const step1Panel = document.getElementById('step1Panel');
     const step2Panel = document.getElementById('step2Panel');
@@ -235,73 +306,148 @@
     const step1Error = document.getElementById('step1Error');
     const step2Error = document.getElementById('step2Error');
     const resetAllBtn = document.getElementById('resetAllBtn');
-    const messageForm = document.getElementById('messageForm');
-    const formFeedback = document.getElementById('formFeedback');
     const letterBody = document.getElementById('letterBody');
     const letterDateSpan = document.getElementById('letterDate');
-
-    function showError(element, message) {
-        element.innerHTML = message;
+    const letterTitle = document.getElementById('letterTitle');
+    const feedbackForm = document.getElementById('feedbackForm');
+    const feedbackStatus = document.getElementById('feedbackStatus');
+    const visitStatsSpan = document.getElementById('visitStats');
+    const themeToggle = document.getElementById('themeToggle');
+    
+    // 全局变量
+    let autoLockTimer = null;
+    let currentStep1 = null;
+    let currentStep2 = null;
+    let currentLetterIndex = 0;
+    
+    const AUTO_LOCK_MS = 3 * 60 * 1000;
+    
+    // 主题切换
+    function initTheme() {
+        const saved = localStorage.getItem('theme');
+        if (saved === 'dark') {
+            document.body.classList.add('dark');
+            themeToggle.textContent = '☀️';
+        } else {
+            document.body.classList.remove('dark');
+            themeToggle.textContent = '🌙';
+        }
+    }
+    function toggleTheme() {
+        if (document.body.classList.contains('dark')) {
+            document.body.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+            themeToggle.textContent = '🌙';
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+            themeToggle.textContent = '☀️';
+        }
+    }
+    themeToggle.addEventListener('click', toggleTheme);
+    initTheme();
+    
+    function showError(element, message, remainingAttempts = null) {
+        let msg = message;
+        if (remainingAttempts !== null && remainingAttempts > 0) {
+            msg += `（还剩 ${remainingAttempts} 次尝试机会）`;
+        }
+        element.innerHTML = msg;
         element.classList.remove('hidden');
         setTimeout(() => {
             element.classList.add('hidden');
             element.innerHTML = '';
-        }, 2800);
+        }, 3000);
     }
-
     function clearError(element) {
         element.classList.add('hidden');
         element.innerHTML = '';
     }
-
-    // 从后端获取信件内容（需要提供双密码验证）
-    async function fetchLetterContent(step1Pass, step2Pass) {
+    
+    function resetAutoLockTimer() {
+        if (autoLockTimer) clearTimeout(autoLockTimer);
+        autoLockTimer = setTimeout(() => {
+            fullReset();
+            const msg = document.createElement('div');
+            msg.className = 'error-box';
+            msg.style.position = 'fixed';
+            msg.style.bottom = '20px';
+            msg.style.left = '20px';
+            msg.style.right = '20px';
+            msg.style.zIndex = '1000';
+            msg.innerText = '⏰ 由于长时间无操作，已自动锁定，请重新输入密码';
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 2000);
+        }, AUTO_LOCK_MS);
+    }
+    
+    function bindActivity() {
+        const events = ['click', 'mousemove', 'keypress', 'touchstart', 'scroll'];
+        events.forEach(ev => {
+            document.addEventListener(ev, () => {
+                if (!contentPanel.classList.contains('hidden')) {
+                    resetAutoLockTimer();
+                }
+            });
+        });
+    }
+    
+    // 手机锁屏自动锁定
+    function initVisibilityLock() {
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && !contentPanel.classList.contains('hidden')) {
+                fullReset();
+                const msg = document.createElement('div');
+                msg.className = 'error-box';
+                msg.style.position = 'fixed';
+                msg.style.bottom = '20px';
+                msg.style.left = '20px';
+                msg.style.right = '20px';
+                msg.style.zIndex = '1000';
+                msg.innerText = '🔒 由于页面切换或锁屏，已自动锁定，请重新输入密码';
+                document.body.appendChild(msg);
+                setTimeout(() => msg.remove(), 2000);
+            }
+        });
+    }
+    
+    async function loadLetter(step1, step2, letterIndex) {
+        letterBody.innerHTML = '<div class="loading">📡 正在从秘境加载信件...</div>';
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    step1: step1Pass, 
-                    step2: step2Pass 
-                })
+                body: JSON.stringify({ step1, step2, letterIndex })
             });
-            
             const data = await response.json();
-            
             if (response.ok && data.success) {
-                return { success: true, content: data.content, date: data.date };
+                letterTitle.innerText = data.title || '📜 密信 · 亲启';
+                letterDateSpan.innerText = data.date;
+                letterBody.innerHTML = data.content;
+                if (data.visits) visitStatsSpan.innerText = `📊 访问次数：${data.visits}`;
+                return true;
             } else {
-                return { success: false, error: data.error || '验证失败' };
+                letterBody.innerHTML = `<div class="loading" style="color:var(--error-color);">❌ ${data.error}<br>请返回重新验证</div>`;
+                return false;
             }
         } catch (err) {
-            return { success: false, error: '网络错误，请稍后重试' };
-        }
-    }
-
-    // 加载并显示信件
-    async function loadAndDisplayLetter(step1Pass, step2Pass) {
-        // 显示加载状态
-        letterBody.innerHTML = '<div class="loading">📡 正在从秘境加载信件...</div>';
-        
-        const result = await fetchLetterContent(step1Pass, step2Pass);
-        
-        if (result.success) {
-            letterDateSpan.innerText = result.date;
-            letterBody.innerHTML = result.content;
-            // 存储会话令牌（可选，用于刷新页面保持登录）
-            sessionStorage.setItem(SESSION_TOKEN_KEY, JSON.stringify({
-                step1: step1Pass,
-                step2: step2Pass,
-                timestamp: Date.now()
-            }));
-            return true;
-        } else {
-            letterBody.innerHTML = `<div class="loading" style="color:#c46b3f;">❌ ${result.error}<br>请返回重新验证</div>`;
+            letterBody.innerHTML = '<div class="loading" style="color:var(--error-color);">❌ 网络错误，请稍后重试</div>';
             return false;
         }
     }
-
-    // 第一重验证
+    
+    async function switchLetter(index) {
+        if (!currentStep1 || !currentStep2) return;
+        currentLetterIndex = index;
+        document.querySelectorAll('.letter-select button').forEach((btn, i) => {
+            if (i == index) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+        await loadLetter(currentStep1, currentStep2, index);
+        letterBody.classList.remove('fade-in');
+        setTimeout(() => letterBody.classList.add('fade-in'), 10);
+    }
+    
     function verifyStep1() {
         const inputVal = step1Input.value.trim();
         if (!inputVal) {
@@ -310,21 +456,19 @@
             return;
         }
         if (STEP1_SECRETS.includes(inputVal)) {
-            // 保存第一重密码到临时变量
-            window._tempStep1 = inputVal;
+            currentStep1 = inputVal;
             step1Panel.classList.add('hidden');
             step2Panel.classList.remove('hidden');
             step1Input.value = '';
             clearError(step1Error);
             step2Input.focus();
         } else {
-            showError(step1Error, '❌ 密令错误，无法通过第一道锁');
+            showError(step1Error, '❌ 密令错误');
             step1Input.value = '';
             step1Input.focus();
         }
     }
-
-    // 第二重验证 + 请求后端获取信件
+    
     async function verifyStep2() {
         const inputVal = step2Input.value.trim();
         if (!inputVal) {
@@ -332,39 +476,62 @@
             step2Input.focus();
             return;
         }
-        
-        const step1Pass = window._tempStep1;
-        if (!step1Pass) {
-            showError(step2Error, '❌ 会话已过期，请重新从第一重开始');
+        if (!currentStep1) {
+            showError(step2Error, '❌ 会话已过期，请重新开始');
             fullReset();
             return;
         }
-        
         if (STEP2_SECRETS.includes(inputVal)) {
-            // 显示加载面板
+            currentStep2 = inputVal;
             step2Panel.classList.add('hidden');
             contentPanel.classList.remove('hidden');
             step2Input.value = '';
             clearError(step2Error);
-            
-            // 从后端获取信件内容
-            const success = await loadAndDisplayLetter(step1Pass, inputVal);
-            if (!success) {
-                // 加载失败，退回第二重
+            const success = await loadLetter(currentStep1, currentStep2, currentLetterIndex);
+            if (success) {
+                document.querySelectorAll('.letter-select button').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const idx = parseInt(e.target.dataset.idx);
+                        switchLetter(idx);
+                    });
+                });
+                const defaultBtn = document.querySelector('.letter-select button[data-idx="0"]');
+                if (defaultBtn) defaultBtn.classList.add('active');
+                resetAutoLockTimer();
+                bindActivity();
+            } else {
                 step2Panel.classList.remove('hidden');
                 contentPanel.classList.add('hidden');
             }
         } else {
-            showError(step2Error, '❌ 密令错误，第二道锁未能开启');
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ step1: currentStep1, step2: inputVal })
+                });
+                const data = await res.json();
+                if (data.remainingAttempts !== undefined) {
+                    showError(step2Error, `❌ 密令错误`, data.remainingAttempts);
+                } else if (data.locked) {
+                    showError(step2Error, `❌ ${data.error}`);
+                } else {
+                    showError(step2Error, '❌ 密令错误');
+                }
+            } catch(e) {
+                showError(step2Error, '❌ 密令错误');
+            }
             step2Input.value = '';
             step2Input.focus();
         }
     }
-
-    // 彻底退出
+    
     function fullReset() {
-        sessionStorage.removeItem(SESSION_TOKEN_KEY);
-        window._tempStep1 = null;
+        if (autoLockTimer) clearTimeout(autoLockTimer);
+        sessionStorage.removeItem('double_gate_session');
+        currentStep1 = null;
+        currentStep2 = null;
+        currentLetterIndex = 0;
         step1Panel.classList.remove('hidden');
         step2Panel.classList.add('hidden');
         contentPanel.classList.add('hidden');
@@ -374,68 +541,63 @@
         clearError(step2Error);
         step1Input.focus();
     }
-
-    // 检查是否有有效的会话令牌（刷新页面时自动恢复）
+    
     async function checkExistingSession() {
-        const saved = sessionStorage.getItem(SESSION_TOKEN_KEY);
-        if (saved) {
-            try {
-                const { step1, step2 } = JSON.parse(saved);
-                if (step1 && step2) {
-                    // 尝试用保存的密码重新获取信件
-                    step1Panel.classList.add('hidden');
-                    step2Panel.classList.add('hidden');
-                    contentPanel.classList.remove('hidden');
-                    const success = await loadAndDisplayLetter(step1, step2);
-                    if (!success) {
-                        fullReset();
-                    }
-                    return;
-                }
-            } catch(e) {}
-        }
         fullReset();
     }
-
-    // 绑定事件
-    step1Btn.addEventListener('click', verifyStep1);
-    step2Btn.addEventListener('click', verifyStep2);
-    if (resetAllBtn) resetAllBtn.addEventListener('click', fullReset);
     
-    step1Input.addEventListener('keypress', (e) => { if (e.key === 'Enter') verifyStep1(); });
-    step2Input.addEventListener('keypress', (e) => { if (e.key === 'Enter') verifyStep2(); });
-
-    // 页面启动
-    checkExistingSession();
-
-    // 留言表单
-    if (messageForm) {
-        messageForm.addEventListener('submit', async function(e) {
+    if (feedbackForm) {
+        feedbackForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const submitBtn = document.getElementById('sendMsgBtn');
+            const submitBtn = document.getElementById('sendFeedbackBtn');
             const originalText = submitBtn.innerText;
-            submitBtn.innerText = '发送中...';
             submitBtn.disabled = true;
-            const formData = new FormData(messageForm);
+            feedbackStatus.innerHTML = '📡 发送中...';
+            const formData = new FormData(feedbackForm);
+            const data = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                message: formData.get('message')
+            };
             try {
-                const response = await fetch(messageForm.action, {
+                const response = await fetch(API_URL, {
                     method: 'POST',
-                    body: formData,
-                    headers: { 'Accept': 'application/json' }
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
                 });
-                if (response.ok) {
-                    formFeedback.innerHTML = '<span style="color:#4a7342;">✅ 回音已寄出</span>';
-                    messageForm.reset();
-                } else throw new Error('发送失败');
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    feedbackStatus.innerHTML = '<span style="color:#4a7342;">✅ 回音已寄出！</span>';
+                    feedbackForm.reset();
+                } else {
+                    feedbackStatus.innerHTML = `<span style="color:#bc6f42;">❌ ${result.error || '发送失败'}</span>`;
+                }
             } catch (err) {
-                formFeedback.innerHTML = '<span style="color:#bc6f42;">⚠️ 发送失败</span>';
+                feedbackStatus.innerHTML = '<span style="color:#bc6f42;">⚠️ 网络错误，请稍后再试</span>';
             } finally {
-                submitBtn.innerText = originalText;
                 submitBtn.disabled = false;
-                setTimeout(() => { if(formFeedback) formFeedback.innerHTML = ''; }, 5000);
+                setTimeout(() => { feedbackStatus.innerHTML = ''; }, 5000);
             }
         });
     }
+    
+    step1Btn.addEventListener('click', verifyStep1);
+    step2Btn.addEventListener('click', verifyStep2);
+    if (resetAllBtn) resetAllBtn.addEventListener('click', fullReset);
+    step1Input.addEventListener('keypress', (e) => { if (e.key === 'Enter') verifyStep1(); });
+    step2Input.addEventListener('keypress', (e) => { if (e.key === 'Enter') verifyStep2(); });
+    
+    checkExistingSession();
+    initVisibilityLock();
+    
+    async function fetchStats() {
+        try {
+            const res = await fetch('/api/stats');
+            const data = await res.json();
+            if (data.visits !== undefined) visitStatsSpan.innerText = `📊 访问次数：${data.visits}`;
+        } catch(e) {}
+    }
+    fetchStats();
 </script>
 </body>
 </html>
