@@ -3,95 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>秘境信箱 · 问答解锁</title>
+    <title>月棱镜威力 · 变身解锁</title>
     <style>
-        /* ========== 全局样式 ========== */
+        /* ========== 美少女战士主题变量 ========== */
+        :root {
+            --bg-gradient-start: #0a0f2a;
+            --bg-gradient-end: #2a1a3a;
+            --card-bg: rgba(255, 245, 250, 0.92);
+            --text-primary: #2a1a3a;
+            --text-secondary: #b43b6e;
+            --border-color: #ffb6c1;
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --accent: #e85d9e;
+            --accent-hover: #c93e7a;
+            --shadow: 0 20px 35px -8px rgba(0,0,0,0.3);
+            --error-bg: #ffe0e6;
+            --error-color: #c94f6d;
+            --success-color: #b5838a;
+            --moon-glow: 0 0 12px #ffb7c5;
+        }
+        body.dark {
+            --bg-gradient-start: #0e0b1c;
+            --bg-gradient-end: #1e102e;
+            --card-bg: rgba(30, 20, 40, 0.92);
+            --text-primary: #f4e9ff;
+            --text-secondary: #ffb3d1;
+            --border-color: #5a3a6a;
+            --input-bg: #2a1a3a;
+            --accent: #d96c9e;
+            --accent-hover: #c04e7a;
+            --moon-glow: 0 0 12px #ff98b9;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* 主题变量 */
-        :root {
-            --bg: #f5efe6;
-            --card-bg: rgba(255, 253, 247, 0.92);
-            --text-primary: #2c241a;
-            --text-secondary: #7a5a3a;
-            --border-color: #e6d5b8;
-            --input-bg: white;
-            --accent: #b48c54;
-            --accent-hover: #9a6e3e;
-            --shadow: 0 25px 45px -12px rgba(0,0,0,0.2);
-            --error-bg: #fff0e6;
-            --error-color: #c46b3f;
-            --success-color: #4a7342;
-        }
-        body.dark {
-            --bg: #1e1b26;
-            --card-bg: rgba(30, 28, 38, 0.95);
-            --text-primary: #e6e2d9;
-            --text-secondary: #c0a86a;
-            --border-color: #3a3442;
-            --input-bg: #2a2832;
-            --accent: #c0a86a;
-            --accent-hover: #d4b87a;
-            --shadow: 0 25px 45px -12px rgba(0,0,0,0.4);
-            --error-bg: #3a2a2a;
-            --error-color: #e8a080;
-        }
-
         body {
-            background: var(--bg);
-            background-image: radial-gradient(circle at 10% 20%, rgba(180, 140, 84, 0.08) 2%, transparent 2.5%);
-            background-size: 35px 35px;
-            font-family: 'Georgia', 'Times New Roman', '宋体', serif;
+            background: radial-gradient(circle at 10% 30%, var(--bg-gradient-start), var(--bg-gradient-end));
+            background-attachment: fixed;
+            font-family: 'Georgia', 'Quicksand', 'Segoe UI', system-ui, serif;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
             transition: background 0.2s;
+        }
+
+        /* 美少女战士装饰：星星、月亮、蝴蝶结 */
+        body::before {
+            content: "🌙⭐💖";
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-size: 32px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
+        body::after {
+            content: "✨🎀✨";
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 36px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
         }
 
         .container {
             max-width: 680px;
             width: 100%;
             background: var(--card-bg);
-            backdrop-filter: blur(2px);
-            border-radius: 48px;
-            box-shadow: var(--shadow);
+            backdrop-filter: blur(4px);
+            border-radius: 56px;
+            box-shadow: var(--shadow), 0 0 0 2px rgba(255, 200, 220, 0.5);
             overflow: hidden;
             border: 1px solid var(--border-color);
             transition: all 0.2s;
+            position: relative;
+            z-index: 2;
         }
 
-        /* 面板通用内边距 */
         .panel {
             padding: 40px 36px;
         }
 
-        /* 装饰元素 */
+        /* 装饰icon */
         .decor {
             text-align: center;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
         .decor-icon {
-            font-size: 64px;
-            filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.1));
+            font-size: 70px;
+            filter: drop-shadow(var(--moon-glow));
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
         }
 
         h2 {
             text-align: center;
             color: var(--text-secondary);
             font-size: 28px;
-            margin-bottom: 8px;
-            letter-spacing: 1px;
+            margin-bottom: 6px;
+            letter-spacing: 2px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
 
         .sub {
             text-align: center;
-            color: #b4926a;
+            color: #c2779a;
             font-size: 14px;
             margin-bottom: 32px;
             font-style: italic;
@@ -103,29 +133,30 @@
             padding-bottom: 6px;
         }
 
-        /* 问答卡片样式 */
+        /* 问答卡片 */
         .question-card {
             background: var(--input-bg);
-            border-radius: 32px;
-            padding: 24px;
+            border-radius: 40px;
+            padding: 28px;
             margin-bottom: 24px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             border: 1px solid var(--border-color);
+            transition: all 0.2s;
         }
 
         .question-text {
-            font-size: 20px;
-            font-weight: 500;
+            font-size: 22px;
+            font-weight: 600;
             color: var(--text-secondary);
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
         .question-text:before {
-            content: "✧";
-            font-size: 24px;
-            color: var(--accent);
+            content: "🎀";
+            font-size: 28px;
+            font-weight: normal;
         }
 
         .answer-input {
@@ -133,15 +164,15 @@
             padding: 14px 20px;
             font-size: 16px;
             border: 2px solid var(--border-color);
-            border-radius: 48px;
-            background: var(--card-bg);
+            border-radius: 60px;
+            background: rgba(255,255,245,0.9);
             color: var(--text-primary);
             outline: none;
             transition: all 0.2s;
         }
         .answer-input:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(180, 140, 84, 0.2);
+            box-shadow: 0 0 0 3px rgba(232, 93, 158, 0.3);
         }
 
         .next-btn, .unlock-btn {
@@ -151,11 +182,12 @@
             padding: 12px 24px;
             font-size: 16px;
             font-weight: bold;
-            border-radius: 48px;
+            border-radius: 60px;
             width: 100%;
             cursor: pointer;
             transition: 0.2s;
-            margin-top: 8px;
+            margin-top: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
         .next-btn:hover, .unlock-btn:hover {
             background: var(--accent-hover);
@@ -179,21 +211,23 @@
             margin-bottom: 30px;
         }
         .step-dot {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
-            background: #ddd;
+            background: #f2cfdf;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            color: #666;
+            color: #a56b8a;
+            font-size: 18px;
             transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .step-dot.active {
             background: var(--accent);
             color: white;
-            box-shadow: 0 0 0 4px rgba(180,140,84,0.3);
+            box-shadow: 0 0 0 4px rgba(232, 93, 158, 0.4);
         }
         .step-dot.completed {
             background: var(--success-color);
@@ -204,7 +238,7 @@
             display: none;
         }
 
-        /* 信件区域样式（沿用原有但优化） */
+        /* 信件区域 */
         .letter-content {
             background: var(--card-bg);
         }
@@ -219,7 +253,7 @@
             color: var(--text-secondary);
         }
         .letter-date {
-            color: #b99e7a;
+            color: #c58aa7;
             font-size: 12px;
             margin-top: 6px;
         }
@@ -240,8 +274,8 @@
             flex-wrap: wrap;
         }
         .letter-select button {
-            background: #cfbc9a;
-            color: #5e3e22;
+            background: #f5d6e4;
+            color: #8a4a6e;
             border: none;
             padding: 8px 20px;
             border-radius: 40px;
@@ -280,11 +314,11 @@
             text-align: center;
             font-size: 12px;
             margin: 16px 0;
-            color: #b99e7a;
+            color: #c58aa7;
         }
         .logout-btn {
-            background: #cfbc9a;
-            color: #5e3e22;
+            background: #f2cfdf;
+            color: #7a4a62;
             margin-top: 16px;
             width: auto;
             display: inline-block;
@@ -313,11 +347,12 @@
             align-items: center;
             justify-content: center;
             transition: 0.2s;
+            z-index: 100;
         }
         footer {
             font-size: 11px;
             text-align: center;
-            color: #b5936e;
+            color: #b5839a;
             margin-top: 28px;
             padding-top: 16px;
             border-top: 1px solid var(--border-color);
@@ -329,6 +364,19 @@
         .fade-in {
             animation: fadeIn 0.4s ease;
         }
+        /* 额外的小星星 */
+        .star {
+            position: fixed;
+            color: #ffdf80;
+            font-size: 16px;
+            pointer-events: none;
+            z-index: 1;
+            animation: twinkle 4s infinite;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; text-shadow: 0 0 2px gold; }
+            50% { opacity: 1; text-shadow: 0 0 8px yellow; }
+        }
     </style>
 </head>
 <body>
@@ -337,60 +385,57 @@
     <!-- 分步问答面板 -->
     <div id="questionsPanel" class="panel">
         <div class="decor">
-            <div class="decor-icon">🔑✧</div>
+            <div class="decor-icon">🌙✨🎀</div>
         </div>
-        <h2>秘钥问答</h2>
-        <div class="sub">回答正确方能开启信箱</div>
+        <h2>月棱镜威力 · 变身</h2>
+        <div class="sub">回答两道秘语，解锁星月信件</div>
 
-        <!-- 步骤指示器 -->
         <div class="step-indicator" id="stepIndicator">
             <div class="step-dot" id="step1Dot">1</div>
             <div class="step-dot" id="step2Dot">2</div>
         </div>
 
-        <!-- 问题1 -->
         <div id="question1Box" class="question-card">
-            <div class="question-text">第一重密令</div>
+            <div class="question-text">第一道 · 星之密语</div>
             <input type="text" id="answer1" class="answer-input" placeholder="请输入答案" autocomplete="off">
-            <button id="nextStepBtn" class="next-btn">下一步 →</button>
+            <button id="nextStepBtn" class="next-btn">✨ 下一关 ✨</button>
             <div id="error1" class="error-msg hidden"></div>
         </div>
 
-        <!-- 问题2（初始隐藏） -->
         <div id="question2Box" class="question-card hidden">
-            <div class="question-text">第二重密令</div>
+            <div class="question-text">第二道 · 月之密语</div>
             <input type="text" id="answer2" class="answer-input" placeholder="请输入答案" autocomplete="off">
-            <button id="unlockFinalBtn" class="unlock-btn">🔓 解锁信件</button>
+            <button id="unlockFinalBtn" class="unlock-btn">🔓 月棱镜威力 变身解锁 🔓</button>
             <div id="error2" class="error-msg hidden"></div>
         </div>
     </div>
 
-    <!-- 信件内容面板（原有结构） -->
+    <!-- 信件内容面板 -->
     <div id="contentPanel" class="letter-content hidden">
         <div class="panel">
             <div class="letter-header">
-                <h3 id="letterTitle">📜 密信 · 亲启</h3>
+                <h3 id="letterTitle">📜 星月信笺 · 亲启</h3>
                 <div class="letter-date" id="letterDate"></div>
             </div>
             <div id="letterBody" class="letter-body fade-in">
-                <div class="loading">🔐 正在加载信件...</div>
+                <div class="loading">🌟 正在从银河加载信件...</div>
             </div>
             <div class="letter-select" id="letterSelect"></div>
             <div class="reply-area">
-                <h4>📬 回音壁 · 给守秘人留言</h4>
+                <h4>💌 回音壁 · 给月野兔的留言</h4>
                 <form id="feedbackForm">
                     <input type="text" name="name" class="reply-input" placeholder="你的名字 / 昵称" required>
                     <input type="email" name="email" class="reply-input" placeholder="你的邮箱（以便回信）" required>
-                    <textarea name="message" class="reply-textarea" placeholder="请写下你想说的话..." required></textarea>
-                    <button type="submit" id="sendFeedbackBtn" style="background:#b48c54;">💌 寄出回音</button>
+                    <textarea name="message" class="reply-textarea" placeholder="写下你想对月亮说的话..." required></textarea>
+                    <button type="submit" id="sendFeedbackBtn" style="background:#e85d9e;">🌙 寄出回音 🌙</button>
                     <div id="feedbackStatus" style="margin-top: 12px; font-size: 13px; text-align:center;"></div>
                 </form>
             </div>
             <div class="stats" id="visitStats"></div>
             <div class="flex-center">
-                <button id="resetAllBtn" class="logout-btn">🔒 彻底退出 / 重新验证</button>
+                <button id="resetAllBtn" class="logout-btn">🔒 重新变身 / 退出</button>
             </div>
-            <footer>双重守护 · 关闭页面后需重新回答</footer>
+            <footer>🌙 美少女战士 · 星月守护 🌙</footer>
         </div>
     </div>
 </div>
@@ -400,7 +445,7 @@
     const API_URL = '/api/letter';
     let step1Answer = null;
     let step2Answer = null;
-    let currentStep = 1; // 1 或 2
+    let currentStep = 1;
 
     // DOM 元素
     const questionsPanel = document.getElementById('questionsPanel');
@@ -425,7 +470,7 @@
     const visitStatsSpan = document.getElementById('visitStats');
     const letterSelectDiv = document.getElementById('letterSelect');
 
-    // 全局变量（用于信件切换和自动锁定）
+    // 全局变量
     let autoLockTimer = null;
     let currentStep1 = null;
     let currentStep2 = null;
@@ -433,7 +478,7 @@
     let totalLetters = 0;
     const AUTO_LOCK_MS = 3 * 60 * 1000;
 
-    // ========== 主题切换 ==========
+    // 主题切换
     function initTheme() {
         const saved = localStorage.getItem('theme');
         if (saved === 'dark') {
@@ -458,7 +503,7 @@
     themeToggle.addEventListener('click', toggleTheme);
     initTheme();
 
-    // ========== 辅助函数 ==========
+    // 辅助函数
     function showError(element, msg) {
         element.innerHTML = msg;
         element.classList.remove('hidden');
@@ -482,59 +527,14 @@
         }
     }
 
-    // 第一步：验证 step1 答案（通过后端单独验证，不暴露密码）
-    async function verifyStep1AndProceed() {
-        const ans = answer1Input.value.trim();
-        if (!ans) {
-            showError(error1Div, '请输入第一重密令');
-            return;
-        }
-        // 临时保存 step1
-        step1Answer = ans;
-        // 发送验证请求到后端（使用一个轻量接口验证 step1 是否正确）
-        // 由于后端没有单独的验证接口，我们使用 /api/letter 并伪造 step2，但返回错误时只判断 step1 错误
-        // 这里为了不修改后端，我们直接采用本地模拟？但为了安全不暴露密码，我们只能调用后端。
-        // 方案：调用 /api/letter 同时发送 step1 和一个假的 step2，后端会返回 step1 错误信息。
-        try {
-            const res = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ step1: ans, step2: 'dummy_for_verify', letterIndex: 0 })
-            });
-            const data = await res.json();
-            if (res.status === 401 && data.error && data.error.includes('密令错误')) {
-                showError(error1Div, '第一重密令错误');
-                return;
-            }
-            if (res.ok) {
-                // 理论上不会 ok，因为 step2 错误，但以防万一
-                // 正常 step1 正确时后端返回 401 因为 step2 错误，所以我们判断上面的条件
-            }
-            // 如果没进入上面的错误，说明 step1 可能是正确的（后端因为 step2 错误而返回，但错误提示不是针对 step1）
-            // 我们需要更精确：实际上后端只返回统一错误。为了可靠，建议修改后端增加单独验证，但用户要求不改变功能，我们采用另一种思路：
-            // 在前端不验证 step1 正确性，仅收集答案，等第二步完成时一次性提交。这样虽然分步但不会提前验证，符合“不暴露密码”且不改后端。
-            // 重新梳理：用户要求“两个问题不同时显示，第一个问题回答正确后再进入第二个问题”，但这里要求“正确”需要后端验证。
-            // 为了不修改后端，我将在前端使用本地存储的密码数组？不行，会暴露密码。所以最佳方案：修改后端增加一个 /api/verify_step 接口？那改变功能了。
-            // 权衡：为了满足分步且不暴露密码，我们采用“收集答案但不验证正确性”，即第一步只收集答案，进入第二步；第二步收集后一起发送验证。这样没有提前验证正确性，但实现了分步显示。
-            // 用户可能接受？如果不接受，需要后端配合。
-            // 根据用户之前“不改变功能”，我理解是指信件分离、自动锁定等，但验证逻辑还是后端双密码验证。我们可以实现：第一步不验证正确性，只是收集；第二步提交时一起验证。这样依然保证密码不在前端。
-            // 那我们就按此实现：点击下一步时，只要输入不为空，就保存答案并切换到第二步。
-            // 用户预期是“第一个问题回答正确后再进入”，这里由于无法在不暴露密码情况下提前验证，只能退而求其次，但可以说明。如果用户强烈要求，则需后端支持。
-            // 这里我选择“不提前验证正确性”，只做收集。但为了更好的体验，可以在前端增加一个假验证？不行。
-            // 我将在代码中注释解释，并实现“收集答案，最终一起验证”。用户可以在第二步看到错误提示（如果密码错误）。
-            // 这是符合不改变后端且不暴露密码的唯一办法。
-        } catch(e) {}
-    }
-
-    // 更简单的实现：点击下一步仅收集答案并切换到第二步，不做验证。
+    // 第一步 -> 收集答案，进入第二步（不提前验证，密码全部后端校验）
     function goToStep2() {
         const ans1 = answer1Input.value.trim();
         if (!ans1) {
-            showError(error1Div, '请输入第一重密令');
+            showError(error1Div, '请输入第一道密语');
             return;
         }
         step1Answer = ans1;
-        // 切换到第二步
         question1Box.classList.add('hidden');
         question2Box.classList.remove('hidden');
         currentStep = 2;
@@ -549,14 +549,13 @@
     async function finalUnlock() {
         const ans2 = answer2Input.value.trim();
         if (!ans2) {
-            showError(error2Div, '请输入第二重密令');
+            showError(error2Div, '请输入第二道密语');
             return;
         }
         step2Answer = ans2;
-        // 显示加载
         questionsPanel.classList.add('hidden');
         contentPanel.classList.remove('hidden');
-        letterBody.innerHTML = '<div class="loading">📡 正在验证并加载信件...</div>';
+        letterBody.innerHTML = '<div class="loading">🌙 星月之力，验证中...</div>';
 
         try {
             const response = await fetch(API_URL, {
@@ -566,28 +565,21 @@
             });
             const data = await response.json();
             if (response.ok && data.success) {
-                // 验证成功，显示信件内容
-                letterTitle.innerText = data.title || '📜 密信 · 亲启';
+                letterTitle.innerText = data.title || '📜 星月信笺';
                 letterDateSpan.innerText = data.date;
                 letterBody.innerHTML = data.content;
                 if (data.visits) visitStatsSpan.innerText = `📊 访问次数：${data.visits}`;
                 totalLetters = data.totalLetters || 0;
-                // 生成信件切换按钮
                 generateLetterButtons(totalLetters);
-                // 保存当前密码以便切换信件
                 currentStep1 = step1Answer;
                 currentStep2 = step2Answer;
-                // 记录上次阅读位置
                 localStorage.setItem('last_letter_index', currentLetterIndex);
-                // 启动自动锁定
                 resetAutoLockTimer();
                 bindActivity();
             } else {
-                // 验证失败
                 questionsPanel.classList.remove('hidden');
                 contentPanel.classList.add('hidden');
-                showError(error2Div, data.error || '密令错误，请重新回答');
-                // 重置步骤1和2，让用户重新开始
+                showError(error2Div, data.error || '密语错误，无法变身');
                 step1Answer = null;
                 step2Answer = null;
                 answer1Input.value = '';
@@ -600,25 +592,23 @@
         } catch (err) {
             questionsPanel.classList.remove('hidden');
             contentPanel.classList.add('hidden');
-            showError(error2Div, '网络错误，请稍后重试');
+            showError(error2Div, '网络错误，请稍后再试');
         }
     }
 
     unlockBtn.addEventListener('click', finalUnlock);
 
-    // ========== 信件切换功能 ==========
+    // 信件切换功能
     async function switchLetter(index) {
         if (!currentStep1 || !currentStep2) return;
         if (index >= totalLetters) return;
         currentLetterIndex = index;
         localStorage.setItem('last_letter_index', index);
-        // 高亮按钮
         document.querySelectorAll('.letter-select button').forEach((btn, i) => {
             if (i == index) btn.classList.add('active');
             else btn.classList.remove('active');
         });
-        // 重新加载信件
-        letterBody.innerHTML = '<div class="loading">📡 加载信件...</div>';
+        letterBody.innerHTML = '<div class="loading">🌙 读取信件...</div>';
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -631,10 +621,10 @@
                 letterDateSpan.innerText = data.date;
                 letterBody.innerHTML = data.content;
             } else {
-                letterBody.innerHTML = '<div class="loading" style="color:var(--error-color);">加载失败</div>';
+                letterBody.innerHTML = '<div class="loading" style="color:var(--error-color);">✨ 信件加载失败 ✨</div>';
             }
         } catch (err) {
-            letterBody.innerHTML = '<div class="loading" style="color:var(--error-color);">网络错误</div>';
+            letterBody.innerHTML = '<div class="loading" style="color:var(--error-color);">⭐ 网络错误 ⭐</div>';
         }
         letterBody.classList.remove('fade-in');
         setTimeout(() => letterBody.classList.add('fade-in'), 10);
@@ -644,7 +634,7 @@
         letterSelectDiv.innerHTML = '';
         for (let i = 0; i < count; i++) {
             const btn = document.createElement('button');
-            btn.textContent = `第${i+1}封信`;
+            btn.textContent = `💌 第${i+1}封信`;
             btn.dataset.idx = i;
             btn.addEventListener('click', (e) => {
                 const idx = parseInt(e.target.dataset.idx);
@@ -652,12 +642,11 @@
             });
             letterSelectDiv.appendChild(btn);
         }
-        // 高亮当前信件按钮
         const btns = document.querySelectorAll('.letter-select button');
         if (btns[currentLetterIndex]) btns[currentLetterIndex].classList.add('active');
     }
 
-    // ========== 自动锁定相关 ==========
+    // 自动锁定
     function resetAutoLockTimer() {
         if (autoLockTimer) clearTimeout(autoLockTimer);
         autoLockTimer = setTimeout(() => {
@@ -669,7 +658,7 @@
             msg.style.left = '20px';
             msg.style.right = '20px';
             msg.style.zIndex = '1000';
-            msg.innerText = '⏰ 长时间无操作，已自动锁定，请重新回答';
+            msg.innerText = '⏰ 长时间未操作，已自动退出变身状态';
             document.body.appendChild(msg);
             setTimeout(() => msg.remove(), 2000);
         }, AUTO_LOCK_MS);
@@ -723,14 +712,14 @@
         clearError(error2Div);
     }
 
-    // ========== 留言功能 ==========
+    // 留言
     if (feedbackForm) {
         feedbackForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitBtn = document.getElementById('sendFeedbackBtn');
             const originalText = submitBtn.innerText;
             submitBtn.disabled = true;
-            feedbackStatus.innerHTML = '📡 发送中...';
+            feedbackStatus.innerHTML = '🌙 发送中...';
             const formData = new FormData(feedbackForm);
             const data = {
                 name: formData.get('name'),
@@ -745,13 +734,13 @@
                 });
                 const result = await response.json();
                 if (response.ok && result.success) {
-                    feedbackStatus.innerHTML = '<span style="color:#4a7342;">✅ 回音已寄出！</span>';
+                    feedbackStatus.innerHTML = '<span style="color:#b5838a;">✅ 回音已寄往月亮！</span>';
                     feedbackForm.reset();
                 } else {
-                    feedbackStatus.innerHTML = `<span style="color:#bc6f42;">❌ ${result.error || '发送失败'}</span>`;
+                    feedbackStatus.innerHTML = `<span style="color:#c94f6d;">❌ ${result.error || '发送失败'}</span>`;
                 }
             } catch (err) {
-                feedbackStatus.innerHTML = '<span style="color:#bc6f42;">⚠️ 网络错误</span>';
+                feedbackStatus.innerHTML = '<span style="color:#c94f6d;">⚠️ 星月网络不稳定，请稍后重试</span>';
             } finally {
                 submitBtn.disabled = false;
                 setTimeout(() => { feedbackStatus.innerHTML = ''; }, 5000);
@@ -759,14 +748,10 @@
         });
     }
 
-    // 重置按钮
     if (resetAllBtn) resetAllBtn.addEventListener('click', fullReset);
-
-    // 初始化
     updateStepIndicator();
     initVisibilityLock();
 
-    // 获取访问统计
     async function fetchStats() {
         try {
             const res = await fetch('/api/stats');
