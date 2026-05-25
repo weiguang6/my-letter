@@ -5,15 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>月棱镜威力 · 变身解锁</title>
     <style>
-        /* ========== 美少女战士主题变量 ========== */
+        /* ========== 美少女战士主题（图片背景） ========== */
         :root {
-            --bg-gradient-start: #0a0f2a;
-            --bg-gradient-end: #2a1a3a;
-            --card-bg: rgba(255, 245, 250, 0.92);
+            --card-bg: rgba(255, 245, 250, 0.88);
             --text-primary: #2a1a3a;
             --text-secondary: #b43b6e;
             --border-color: #ffb6c1;
-            --input-bg: rgba(255, 255, 255, 0.9);
+            --input-bg: rgba(255, 255, 255, 0.85);
             --accent: #e85d9e;
             --accent-hover: #c93e7a;
             --shadow: 0 20px 35px -8px rgba(0,0,0,0.3);
@@ -23,13 +21,11 @@
             --moon-glow: 0 0 12px #ffb7c5;
         }
         body.dark {
-            --bg-gradient-start: #0e0b1c;
-            --bg-gradient-end: #1e102e;
-            --card-bg: rgba(30, 20, 40, 0.92);
+            --card-bg: rgba(30, 20, 40, 0.88);
             --text-primary: #f4e9ff;
             --text-secondary: #ffb3d1;
             --border-color: #5a3a6a;
-            --input-bg: #2a1a3a;
+            --input-bg: rgba(35, 25, 45, 0.85);
             --accent: #d96c9e;
             --accent-hover: #c04e7a;
             --moon-glow: 0 0 12px #ff98b9;
@@ -42,7 +38,10 @@
         }
 
         body {
-            background: radial-gradient(circle at 10% 30%, var(--bg-gradient-start), var(--bg-gradient-end));
+            /* 背景图片：可替换为你的图片URL */
+            background-image: url('https://images.pexels.com/photos/1142950/pexels-photo-1142950.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');
+            background-size: cover;
+            background-position: center;
             background-attachment: fixed;
             font-family: 'Georgia', 'Quicksand', 'Segoe UI', system-ui, serif;
             min-height: 100vh;
@@ -53,25 +52,33 @@
             position: relative;
             transition: background 0.2s;
         }
+        /* 暗色模式下可换一张暗系背景，或保持相同图片 */
+        body.dark {
+            background-image: url('https://images.pexels.com/photos/1040499/pexels-photo-1040499.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');
+        }
 
-        /* 美少女战士装饰：星星、月亮、蝴蝶结 */
+        /* 半透明遮罩层（可选，增强文字可读性） */
         body::before {
-            content: "🌙⭐💖";
+            content: "";
             position: fixed;
-            top: 10px;
-            left: 10px;
-            font-size: 32px;
-            opacity: 0.3;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: brightness(0.9);
             pointer-events: none;
             z-index: 0;
         }
+
+        /* 装饰星星（依然保留） */
         body::after {
-            content: "✨🎀✨";
+            content: "✨⭐💖✨";
             position: fixed;
             bottom: 10px;
             right: 10px;
-            font-size: 36px;
-            opacity: 0.3;
+            font-size: 32px;
+            opacity: 0.5;
             pointer-events: none;
             z-index: 0;
         }
@@ -80,9 +87,9 @@
             max-width: 680px;
             width: 100%;
             background: var(--card-bg);
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(12px);
             border-radius: 56px;
-            box-shadow: var(--shadow), 0 0 0 2px rgba(255, 200, 220, 0.5);
+            box-shadow: var(--shadow), 0 0 0 2px rgba(255, 200, 220, 0.4);
             overflow: hidden;
             border: 1px solid var(--border-color);
             transition: all 0.2s;
@@ -94,7 +101,6 @@
             padding: 40px 36px;
         }
 
-        /* 装饰icon */
         .decor {
             text-align: center;
             margin-bottom: 12px;
@@ -133,7 +139,6 @@
             padding-bottom: 6px;
         }
 
-        /* 问答卡片 */
         .question-card {
             background: var(--input-bg);
             border-radius: 40px;
@@ -238,7 +243,6 @@
             display: none;
         }
 
-        /* 信件区域 */
         .letter-content {
             background: var(--card-bg);
         }
@@ -364,44 +368,27 @@
         .fade-in {
             animation: fadeIn 0.4s ease;
         }
-        /* 额外的小星星 */
-        .star {
-            position: fixed;
-            color: #ffdf80;
-            font-size: 16px;
-            pointer-events: none;
-            z-index: 1;
-            animation: twinkle 4s infinite;
-        }
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; text-shadow: 0 0 2px gold; }
-            50% { opacity: 1; text-shadow: 0 0 8px yellow; }
-        }
     </style>
 </head>
 <body>
 <button class="theme-toggle" id="themeToggle" aria-label="切换主题">🌙</button>
 <div class="container">
-    <!-- 分步问答面板 -->
     <div id="questionsPanel" class="panel">
         <div class="decor">
             <div class="decor-icon">🌙✨🎀</div>
         </div>
         <h2>月棱镜威力 · 变身</h2>
         <div class="sub">回答两道秘语，解锁星月信件</div>
-
         <div class="step-indicator" id="stepIndicator">
             <div class="step-dot" id="step1Dot">1</div>
             <div class="step-dot" id="step2Dot">2</div>
         </div>
-
         <div id="question1Box" class="question-card">
             <div class="question-text">第一道 · 星之密语</div>
             <input type="text" id="answer1" class="answer-input" placeholder="请输入答案" autocomplete="off">
             <button id="nextStepBtn" class="next-btn">✨ 下一关 ✨</button>
             <div id="error1" class="error-msg hidden"></div>
         </div>
-
         <div id="question2Box" class="question-card hidden">
             <div class="question-text">第二道 · 月之密语</div>
             <input type="text" id="answer2" class="answer-input" placeholder="请输入答案" autocomplete="off">
@@ -409,17 +396,13 @@
             <div id="error2" class="error-msg hidden"></div>
         </div>
     </div>
-
-    <!-- 信件内容面板 -->
     <div id="contentPanel" class="letter-content hidden">
         <div class="panel">
             <div class="letter-header">
                 <h3 id="letterTitle">📜 星月信笺 · 亲启</h3>
                 <div class="letter-date" id="letterDate"></div>
             </div>
-            <div id="letterBody" class="letter-body fade-in">
-                <div class="loading">🌟 正在从银河加载信件...</div>
-            </div>
+            <div id="letterBody" class="letter-body fade-in"><div class="loading">🌟 正在从银河加载信件...</div></div>
             <div class="letter-select" id="letterSelect"></div>
             <div class="reply-area">
                 <h4>💌 回音壁 · 给月野兔的留言</h4>
@@ -432,9 +415,7 @@
                 </form>
             </div>
             <div class="stats" id="visitStats"></div>
-            <div class="flex-center">
-                <button id="resetAllBtn" class="logout-btn">🔒 重新变身 / 退出</button>
-            </div>
+            <div class="flex-center"><button id="resetAllBtn" class="logout-btn">🔒 重新变身 / 退出</button></div>
             <footer>🌙 美少女战士 · 星月守护 🌙</footer>
         </div>
     </div>
@@ -447,7 +428,6 @@
     let step2Answer = null;
     let currentStep = 1;
 
-    // DOM 元素
     const questionsPanel = document.getElementById('questionsPanel');
     const contentPanel = document.getElementById('contentPanel');
     const question1Box = document.getElementById('question1Box');
@@ -470,7 +450,6 @@
     const visitStatsSpan = document.getElementById('visitStats');
     const letterSelectDiv = document.getElementById('letterSelect');
 
-    // 全局变量
     let autoLockTimer = null;
     let currentStep1 = null;
     let currentStep2 = null;
@@ -478,7 +457,6 @@
     let totalLetters = 0;
     const AUTO_LOCK_MS = 3 * 60 * 1000;
 
-    // 主题切换
     function initTheme() {
         const saved = localStorage.getItem('theme');
         if (saved === 'dark') {
@@ -503,7 +481,6 @@
     themeToggle.addEventListener('click', toggleTheme);
     initTheme();
 
-    // 辅助函数
     function showError(element, msg) {
         element.innerHTML = msg;
         element.classList.remove('hidden');
@@ -527,7 +504,6 @@
         }
     }
 
-    // 第一步 -> 收集答案，进入第二步（不提前验证，密码全部后端校验）
     function goToStep2() {
         const ans1 = answer1Input.value.trim();
         if (!ans1) {
@@ -542,10 +518,8 @@
         answer2Input.focus();
         clearError(error1Div);
     }
-
     nextBtn.addEventListener('click', goToStep2);
 
-    // 最终解锁：将两个答案一起发送给后端
     async function finalUnlock() {
         const ans2 = answer2Input.value.trim();
         if (!ans2) {
@@ -556,7 +530,6 @@
         questionsPanel.classList.add('hidden');
         contentPanel.classList.remove('hidden');
         letterBody.innerHTML = '<div class="loading">🌙 星月之力，验证中...</div>';
-
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
@@ -595,10 +568,8 @@
             showError(error2Div, '网络错误，请稍后再试');
         }
     }
-
     unlockBtn.addEventListener('click', finalUnlock);
 
-    // 信件切换功能
     async function switchLetter(index) {
         if (!currentStep1 || !currentStep2) return;
         if (index >= totalLetters) return;
@@ -646,7 +617,6 @@
         if (btns[currentLetterIndex]) btns[currentLetterIndex].classList.add('active');
     }
 
-    // 自动锁定
     function resetAutoLockTimer() {
         if (autoLockTimer) clearTimeout(autoLockTimer);
         autoLockTimer = setTimeout(() => {
@@ -663,18 +633,14 @@
             setTimeout(() => msg.remove(), 2000);
         }, AUTO_LOCK_MS);
     }
-
     function bindActivity() {
         const events = ['click', 'mousemove', 'keypress', 'touchstart', 'scroll'];
         events.forEach(ev => {
             document.addEventListener(ev, () => {
-                if (!contentPanel.classList.contains('hidden')) {
-                    resetAutoLockTimer();
-                }
+                if (!contentPanel.classList.contains('hidden')) resetAutoLockTimer();
             });
         });
     }
-
     function initVisibilityLock() {
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden && !contentPanel.classList.contains('hidden')) {
@@ -692,16 +658,11 @@
             }
         });
     }
-
     function fullReset() {
         if (autoLockTimer) clearTimeout(autoLockTimer);
-        currentStep1 = null;
-        currentStep2 = null;
-        currentLetterIndex = 0;
-        step1Answer = null;
-        step2Answer = null;
-        answer1Input.value = '';
-        answer2Input.value = '';
+        currentStep1 = null; currentStep2 = null; currentLetterIndex = 0;
+        step1Answer = null; step2Answer = null;
+        answer1Input.value = ''; answer2Input.value = '';
         question1Box.classList.remove('hidden');
         question2Box.classList.add('hidden');
         contentPanel.classList.add('hidden');
@@ -712,7 +673,6 @@
         clearError(error2Div);
     }
 
-    // 留言
     if (feedbackForm) {
         feedbackForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -721,11 +681,7 @@
             submitBtn.disabled = true;
             feedbackStatus.innerHTML = '🌙 发送中...';
             const formData = new FormData(feedbackForm);
-            const data = {
-                name: formData.get('name'),
-                email: formData.get('email'),
-                message: formData.get('message')
-            };
+            const data = { name: formData.get('name'), email: formData.get('email'), message: formData.get('message') };
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
@@ -747,11 +703,9 @@
             }
         });
     }
-
     if (resetAllBtn) resetAllBtn.addEventListener('click', fullReset);
     updateStepIndicator();
     initVisibilityLock();
-
     async function fetchStats() {
         try {
             const res = await fetch('/api/stats');
