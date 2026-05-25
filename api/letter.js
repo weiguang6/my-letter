@@ -1,32 +1,14 @@
 import nodemailer from 'nodemailer';
+import fs from 'fs';
+import path from 'path';
 
-// ========== 多封信件内容 ==========
-const LETTERS = [
-    {
-        title: "第一封信 · 初见",
-        content: `
-            <p>见信如晤。</p>
-            <p>这是第一封信，写给第一次解锁的你。愿你保持好奇与温柔。</p>
-            <div class="signature">—— 守秘人</div>
-        `
-    },
-    {
-        title: "第二封信 · 重逢",
-        content: `
-            <p>又见面了。</p>
-            <p>这是第二封信，藏着一些秘密：山有峰顶，海有彼岸。</p>
-            <div class="signature">—— 守秘人</div>
-        `
-    },
-    {
-        title: "第三封信 · 远方",
-        content: `
-            <p>当你看完这封信时，你已经走过了三段旅程。</p>
-            <p>愿你在生活中也如此坚定。</p>
-            <div class="signature">—— 守秘人</div>
-        `
-    }
-];
+// ========== 读取信件数据（从同目录下的 letters.json）==========
+function loadLettersData() {
+    const filePath = path.join(process.cwd(), 'api', 'letters.json');
+    const raw = fs.readFileSync(filePath, 'utf-8');
+    const data = JSON.parse(raw);
+    return data.letters || [];
+}
 
 // ========== 双重验证密码 ==========
 const STEP1_SECRETS = ["启明星", "OpenSesame", "芝兰"];
@@ -35,12 +17,12 @@ const STEP2_SECRETS = ["月光码头", "2026@Gate", "玉树"];
 // ========== 错误限制配置 ==========
 const MAX_FAIL_ATTEMPTS = 5;
 const LOCK_DURATION = 15 * 60 * 1000; // 15分钟
-const failRecords = new Map(); // IP -> { count, lockUntil }
+const failRecords = new Map();
 
-// ========== 访问统计（内存计数，重启归零） ==========
+// ========== 访问统计 ==========
 let visitCount = 0;
 
-// ========== 邮件配置（从环境变量读取） ==========
+// ========== 邮件配置 ==========
 const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = process.env.SMTP_PASS;
 const TO_EMAIL = process.env.TO_EMAIL;
@@ -115,7 +97,6 @@ function incrementVisitCount() {
 
 // ========== Vercel 函数入口 ==========
 export default async function handler(req, res) {
-    // CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -124,7 +105,7 @@ export default async function handler(req, res) {
         return res.status(200).end();
     }
 
-    // GET /api/stats 返回访问统计
+    // GET /api/stats
     if (req.method === 'GET') {
         if (req.url === '/api/stats') {
             return res.status(200).json({ visits: visitCount });
@@ -153,7 +134,6 @@ export default async function handler(req, res) {
     // 处理双重验证
     const { step1, step2, letterIndex = 0 } = body;
 
-    // 检查锁定
     const lock = isLocked(ip);
     if (lock.locked) {
         return res.status(429).json({ success: false, error: `尝试次数过多，请 ${lock.remaining} 分钟后再试`, locked: true });
@@ -175,15 +155,20 @@ export default async function handler(req, res) {
         return res.status(401).json({ success: false, error: `密令错误`, remainingAttempts: Math.max(0, remainingAttempts) });
     }
 
-    // 验证成功，清除失败记录
     clearFailures(ip);
-
-    // 增加访问计数
     const totalVisits = incrementVisitCount();
 
-    // 获取信件
-    const idx = Math.min(Math.max(0, letterIndex), LETTERS.length - 1);
-    const letter = LETTERS[idx];
+    // 读取信件数据
+    let letters = [];
+    try {
+        letters = loadLettersData();
+    } catch (err) {
+        console.error('读取信件失败', err);
+        return res.status(500).json({ success: false, error: '信件数据读取失败' });
+    }
+
+    const idx = Math.min(Math.max(0, letterIndex), letters.length - 1);
+    const letter = letters[idx];
     const dateStr = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
 
     return res.status(200).json({
@@ -191,7 +176,8 @@ export default async function handler(req, res) {
         content: letter.content,
         title: letter.title,
         date: dateStr,
-        visits: totalVisits
+        visits: totalVisits,
+        totalLetters: letters.length
     });
 }
 
