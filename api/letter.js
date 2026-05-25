@@ -3,14 +3,12 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// ========== 获取当前文件所在目录（用于定位 data 文件夹）==========
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ========== 读取信件数据 ==========
+// ========== 读取信件数据（从同目录下的 letters-data.json）==========
 function loadLettersData() {
-    // 从 api 目录向上到根目录，再进入 data 文件夹
-    const filePath = path.join(__dirname, '..', 'data', 'letters.json');
+    const filePath = path.join(__dirname, 'letters-data.json');
     const raw = fs.readFileSync(filePath, 'utf-8');
     const data = JSON.parse(raw);
     return data.letters || [];
@@ -22,13 +20,13 @@ const STEP2_SECRETS = ["月光码头", "2026@Gate", "玉树"];
 
 // ========== 错误限制配置 ==========
 const MAX_FAIL_ATTEMPTS = 5;
-const LOCK_DURATION = 15 * 60 * 1000; // 15分钟
-const failRecords = new Map(); // IP -> { count, lockUntil }
+const LOCK_DURATION = 15 * 60 * 1000;
+const failRecords = new Map();
 
-// ========== 访问统计（内存计数，重启归零） ==========
+// ========== 访问统计 ==========
 let visitCount = 0;
 
-// ========== 邮件配置（从环境变量读取） ==========
+// ========== 邮件配置 ==========
 const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = process.env.SMTP_PASS;
 const TO_EMAIL = process.env.TO_EMAIL;
@@ -103,7 +101,6 @@ function incrementVisitCount() {
 
 // ========== Vercel 函数入口 ==========
 export default async function handler(req, res) {
-    // CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -112,7 +109,6 @@ export default async function handler(req, res) {
         return res.status(200).end();
     }
 
-    // GET /api/stats 返回访问统计
     if (req.method === 'GET') {
         if (req.url === '/api/stats') {
             return res.status(200).json({ visits: visitCount });
@@ -127,7 +123,7 @@ export default async function handler(req, res) {
     const body = req.body;
     const ip = getClientIp(req);
 
-    // 处理留言提交
+    // 留言提交
     if (body.message !== undefined && body.name && body.email) {
         const { name, email, message } = body;
         const success = await sendFeedbackEmail(name, email, message);
@@ -138,10 +134,9 @@ export default async function handler(req, res) {
         }
     }
 
-    // 处理双重验证
+    // 双重验证
     const { step1, step2, letterIndex = 0 } = body;
 
-    // 检查锁定
     const lock = isLocked(ip);
     if (lock.locked) {
         return res.status(429).json({ success: false, error: `尝试次数过多，请 ${lock.remaining} 分钟后再试`, locked: true });
@@ -163,10 +158,7 @@ export default async function handler(req, res) {
         return res.status(401).json({ success: false, error: `密令错误`, remainingAttempts: Math.max(0, remainingAttempts) });
     }
 
-    // 验证成功，清除失败记录
     clearFailures(ip);
-
-    // 增加访问计数
     const totalVisits = incrementVisitCount();
 
     // 读取信件数据
