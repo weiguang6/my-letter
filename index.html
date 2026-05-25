@@ -419,7 +419,7 @@
 <div class="container">
     <div id="questionsPanel" class="panel">
         <div class="decor"><div class="decor-icon" id="decorIcon">📜</div></div>
-        <h2> 爱情欢喜</h2>
+        <h2> 欢喜</h2>
         <div class="sub" id="subText">回答两道密语，启封信件</div>
         <div class="step-indicator" id="stepIndicator">
             <div class="step-dot" id="step1Dot">1</div>
@@ -515,9 +515,9 @@
         } else {
             document.body.classList.remove('theme-sailor');
             themeToggle.textContent = '🌙';
-            decorIcon.innerText = '❤️📜';
+            decorIcon.innerText = '📜';
             subTextSpan.innerText = '回答两道密语，启封心上信件';
-            document.querySelector('title').innerText = '爱情欢喜 · 双锁密信';
+            document.querySelector('title').innerText = '欢喜 · 双锁密信';
         }
         localStorage.setItem('preferredTheme', theme);
         currentTheme = theme;
