@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>双锁密信</title>
+    <title>爱情欢喜 · 双锁密信</title>
     <style>
         /* ========== 爱情欢喜主题（默认） ========== */
         :root {
@@ -53,16 +53,29 @@
             background: radial-gradient(circle at 20% 30%, var(--bg-gradient-start), var(--bg-gradient-end));
             background-attachment: fixed;
             font-family: var(--font-family);
+            /* 关键修复：body 本身不设高度，由内容撑开，但需保证背景覆盖全屏 */
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 16px;
             position: relative;
-            transition: background 0.3s, color 0.2s;
+            transition: background 0.3s;
         }
-        /* 主题装饰（爱情欢喜默认为小桃花，美少女战士为星星） */
+        /* 确保背景全屏且无滚动空白 */
         body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, var(--bg-gradient-start), var(--bg-gradient-end));
+            z-index: -2;
+        }
+        /* 装饰元素 */
+        body::after {
             content: "🌸✨🌸";
             position: fixed;
             top: 12px;
@@ -71,13 +84,11 @@
             opacity: var(--decor-opacity);
             pointer-events: none;
             z-index: 0;
-            transition: content 0.2s;
         }
-        body.theme-sailor::before {
+        body.theme-sailor::after {
             content: "🌙✨⭐";
         }
-        body::after {
-            content: "✧ 爱 ✧";
+        .decor-bottom {
             position: fixed;
             bottom: 12px;
             right: 12px;
@@ -86,16 +97,15 @@
             pointer-events: none;
             z-index: 0;
         }
-        body.theme-sailor::after {
+        body.theme-sailor .decor-bottom {
             content: "🌙✨🎀";
-            font-size: 24px;
         }
 
         .container {
             max-width: 600px;
             width: 100%;
             background: var(--card-bg);
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(8px);
             border-radius: 48px;
             box-shadow: var(--shadow);
             overflow: hidden;
@@ -103,6 +113,8 @@
             position: relative;
             z-index: 2;
             transition: background 0.2s, border-color 0.2s;
+            /* 防止内部元素撑开额外空白 */
+            margin: 0 auto;
         }
 
         .panel {
@@ -403,24 +415,47 @@
         }
         .fade-in { animation: fadeIn 0.3s ease; }
 
-        /* 移动端适配 */
+        /* 移动端特别优化：防止滚动空白 */
         @media (max-width: 480px) {
-            .panel { padding: 24px 18px; }
-            .question-card { padding: 18px; }
-            .question-text { font-size: 18px; }
-            .answer-input { padding: 10px 16px; }
-            .step-dot { width: 38px; height: 38px; font-size: 16px; }
-            .letter-body { padding: 16px; font-size: 14px; }
+            body {
+                padding: 12px;
+            }
+            .panel {
+                padding: 20px 16px;
+            }
+            .question-card {
+                padding: 18px;
+            }
+            .question-text {
+                font-size: 18px;
+            }
+            .answer-input {
+                padding: 10px 16px;
+            }
+            .step-dot {
+                width: 38px;
+                height: 38px;
+                font-size: 16px;
+            }
+            .letter-body {
+                padding: 16px;
+                font-size: 14px;
+            }
+        }
+        /* 确保内容区域不会产生额外滚动空间 */
+        .container, .panel, .letter-content, .question-card {
+            overflow: visible;
         }
     </style>
 </head>
 <body>
+<div class="decor-bottom" id="decorBottom">🌸✨🌸</div>
 <button class="theme-toggle" id="themeToggle" aria-label="切换主题">🌸</button>
 <div class="container">
     <div id="questionsPanel" class="panel">
-        <div class="decor"><div class="decor-icon" id="decorIcon">📜</div></div>
-        <h2> 欢喜</h2>
-        <div class="sub" id="subText">回答两道密语，启封信件</div>
+        <div class="decor"><div class="decor-icon" id="decorIcon">❤️📜</div></div>
+        <h2>双锁秘信 · 爱情欢喜</h2>
+        <div class="sub" id="subText">回答两道密语，启封心上信件</div>
         <div class="step-indicator" id="stepIndicator">
             <div class="step-dot" id="step1Dot">1</div>
             <div class="step-dot" id="step2Dot">2</div>
@@ -464,13 +499,12 @@
 </div>
 
 <script>
-    // ========== 配置 ==========
+    // ========== 完整功能逻辑（与之前一致，保留主题切换和所有功能）==========
     const API_URL = '/api/letter';
     let step1Answer = null;
     let step2Answer = null;
     let currentStep = 1;
 
-    // DOM 元素
     const questionsPanel = document.getElementById('questionsPanel');
     const contentPanel = document.getElementById('contentPanel');
     const question1Box = document.getElementById('question1Box');
@@ -494,8 +528,8 @@
     const letterSelectDiv = document.getElementById('letterSelect');
     const decorIcon = document.getElementById('decorIcon');
     const subTextSpan = document.getElementById('subText');
+    const decorBottom = document.getElementById('decorBottom');
 
-    // 全局变量
     let autoLockTimer = null;
     let currentStep1 = null;
     let currentStep2 = null;
@@ -503,34 +537,32 @@
     let totalLetters = 0;
     const AUTO_LOCK_MS = 3 * 60 * 1000;
 
-    // 主题切换逻辑
-    let currentTheme = localStorage.getItem('preferredTheme') || 'love'; // 'love' 或 'sailor'
+    // 主题切换
+    let currentTheme = localStorage.getItem('preferredTheme') || 'love';
     function setTheme(theme) {
         if (theme === 'sailor') {
             document.body.classList.add('theme-sailor');
             themeToggle.textContent = '🌸';
             decorIcon.innerText = '🌙✨🎀';
             subTextSpan.innerText = '回答两道秘语，解锁星月信件';
+            decorBottom.innerText = '🌙✨🎀';
             document.querySelector('title').innerText = '月棱镜威力 · 变身解锁';
         } else {
             document.body.classList.remove('theme-sailor');
             themeToggle.textContent = '🌙';
-            decorIcon.innerText = '📜';
+            decorIcon.innerText = '❤️📜';
             subTextSpan.innerText = '回答两道密语，启封心上信件';
-            document.querySelector('title').innerText = '欢喜 · 双锁密信';
+            decorBottom.innerText = '🌸✨🌸';
+            document.querySelector('title').innerText = '爱情欢喜 · 双锁密信';
         }
         localStorage.setItem('preferredTheme', theme);
         currentTheme = theme;
     }
     function toggleTheme() {
-        if (currentTheme === 'love') {
-            setTheme('sailor');
-        } else {
-            setTheme('love');
-        }
+        if (currentTheme === 'love') setTheme('sailor');
+        else setTheme('love');
     }
     themeToggle.addEventListener('click', toggleTheme);
-    // 初始化主题
     setTheme(currentTheme);
 
     // 辅助函数
