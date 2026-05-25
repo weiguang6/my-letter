@@ -53,7 +53,6 @@
             background: radial-gradient(circle at 20% 30%, var(--bg-gradient-start), var(--bg-gradient-end));
             background-attachment: fixed;
             font-family: var(--font-family);
-            /* 关键修复：body 本身不设高度，由内容撑开，但需保证背景覆盖全屏 */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -63,7 +62,7 @@
             position: relative;
             transition: background 0.3s;
         }
-        /* 确保背景全屏且无滚动空白 */
+        /* 背景全屏覆盖 */
         body::before {
             content: "";
             position: fixed;
@@ -113,7 +112,6 @@
             position: relative;
             z-index: 2;
             transition: background 0.2s, border-color 0.2s;
-            /* 防止内部元素撑开额外空白 */
             margin: 0 auto;
         }
 
@@ -348,6 +346,18 @@
             border-radius: 24px;
             min-height: 90px;
         }
+        /* 增大“寄出回音”按钮 */
+        #sendFeedbackBtn {
+            font-size: 18px !important;
+            letter-spacing: 2px;
+            padding: 12px 20px;
+        }
+        @media (max-width: 480px) {
+            #sendFeedbackBtn {
+                font-size: 16px !important;
+                padding: 10px 16px;
+            }
+        }
         .stats {
             text-align: center;
             font-size: 12px;
@@ -415,37 +425,16 @@
         }
         .fade-in { animation: fadeIn 0.3s ease; }
 
-        /* 移动端特别优化：防止滚动空白 */
         @media (max-width: 480px) {
-            body {
-                padding: 12px;
-            }
-            .panel {
-                padding: 20px 16px;
-            }
-            .question-card {
-                padding: 18px;
-            }
-            .question-text {
-                font-size: 18px;
-            }
-            .answer-input {
-                padding: 10px 16px;
-            }
-            .step-dot {
-                width: 38px;
-                height: 38px;
-                font-size: 16px;
-            }
-            .letter-body {
-                padding: 16px;
-                font-size: 14px;
-            }
+            body { padding: 12px; }
+            .panel { padding: 20px 16px; }
+            .question-card { padding: 18px; }
+            .question-text { font-size: 18px; }
+            .answer-input { padding: 10px 16px; }
+            .step-dot { width: 38px; height: 38px; font-size: 16px; }
+            .letter-body { padding: 16px; font-size: 14px; }
         }
-        /* 确保内容区域不会产生额外滚动空间 */
-        .container, .panel, .letter-content, .question-card {
-            overflow: visible;
-        }
+        .container, .panel, .letter-content, .question-card { overflow: visible; }
     </style>
 </head>
 <body>
@@ -499,7 +488,30 @@
 </div>
 
 <script>
-    // ========== 完整功能逻辑（与之前一致，保留主题切换和所有功能）==========
+    // ========== 防止查看源代码 ==========
+    // 禁用右键菜单
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
+    // 禁用常用开发者工具快捷键
+    document.addEventListener('keydown', (e) => {
+        // F12
+        if (e.key === 'F12') {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+Shift+I, Ctrl+Shift+C, Ctrl+Shift+J
+        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C' || e.key === 'J')) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+U
+        if (e.ctrlKey && e.key === 'u') {
+            e.preventDefault();
+            return false;
+        }
+    });
+    // ===================================
+
+    // ========== 完整功能逻辑 ==========
     const API_URL = '/api/letter';
     let step1Answer = null;
     let step2Answer = null;
@@ -565,7 +577,6 @@
     themeToggle.addEventListener('click', toggleTheme);
     setTheme(currentTheme);
 
-    // 辅助函数
     function showError(element, msg) {
         element.innerHTML = msg;
         element.classList.remove('hidden');
