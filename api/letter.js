@@ -4,7 +4,7 @@ import path from 'path';
 
 // ========== 读取信件数据（从同目录下的 letters.json）==========
 function loadLettersData() {
-    const filePath = path.join(process.cwd(), 'api', 'letters.json');
+    const filePath = path.join(process.cwd(), 'data', 'letters.json');
     const raw = fs.readFileSync(filePath, 'utf-8');
     const data = JSON.parse(raw);
     return data.letters || [];
