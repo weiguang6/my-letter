@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>双重秘境 · 信启双锁</title>
     <style>
-        /* CSS 变量 - 主题色 */
+        /* ========== 完整样式（沿用原有，未做改动）========== */
         :root {
             --bg-body: #e8dccc;
             --card-bg: #fffdf7;
@@ -190,6 +190,7 @@
             justify-content: center;
             gap: 12px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         .letter-select button {
             width: auto;
@@ -260,12 +261,8 @@
                 <div class="loading">🔐 正在加载信件...</div>
             </div>
 
-            <!-- 多封信件切换 -->
-            <div class="letter-select" id="letterSelect">
-                <button data-idx="0">第一封信</button>
-                <button data-idx="1">第二封信</button>
-                <button data-idx="2">第三封信</button>
-            </div>
+            <!-- 多封信件切换按钮（动态生成） -->
+            <div class="letter-select" id="letterSelect"></div>
 
             <!-- 留言区 -->
             <div class="reply-area">
@@ -290,9 +287,7 @@
 </div>
 
 <script>
-    // 配置
-    const STEP1_SECRETS = ["启明星", "OpenSesame", "芝兰"];
-    const STEP2_SECRETS = ["月光码头", "2026@Gate", "玉树"];
+    // ========== 注意：密码完全不在前端代码中，全部由后端验证 ==========
     const API_URL = '/api/letter';
     
     // DOM 元素
@@ -313,12 +308,14 @@
     const feedbackStatus = document.getElementById('feedbackStatus');
     const visitStatsSpan = document.getElementById('visitStats');
     const themeToggle = document.getElementById('themeToggle');
+    const letterSelectDiv = document.getElementById('letterSelect');
     
     // 全局变量
     let autoLockTimer = null;
-    let currentStep1 = null;
+    let currentStep1 = null;      // 暂存第一重密码
     let currentStep2 = null;
     let currentLetterIndex = 0;
+    let totalLetters = 0;
     
     const AUTO_LOCK_MS = 3 * 60 * 1000;
     
@@ -392,7 +389,6 @@
         });
     }
     
-    // 手机锁屏自动锁定
     function initVisibilityLock() {
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden && !contentPanel.classList.contains('hidden')) {
@@ -411,6 +407,7 @@
         });
     }
     
+    // 加载信件（发送 step1, step2, letterIndex 到后端）
     async function loadLetter(step1, step2, letterIndex) {
         letterBody.innerHTML = '<div class="loading">📡 正在从秘境加载信件...</div>';
         try {
@@ -425,9 +422,11 @@
                 letterDateSpan.innerText = data.date;
                 letterBody.innerHTML = data.content;
                 if (data.visits) visitStatsSpan.innerText = `📊 访问次数：${data.visits}`;
+                if (data.totalLetters) totalLetters = data.totalLetters;
                 return true;
             } else {
-                letterBody.innerHTML = `<div class="loading" style="color:var(--error-color);">❌ ${data.error}<br>请返回重新验证</div>`;
+                // 如果验证失败（例如密码错误），data.success = false
+                letterBody.innerHTML = `<div class="loading" style="color:var(--error-color);">❌ ${data.error || '验证失败'}<br>请返回重新验证</div>`;
                 return false;
             }
         } catch (err) {
@@ -436,9 +435,27 @@
         }
     }
     
+    // 生成信件切换按钮
+    function generateLetterButtons(count) {
+        letterSelectDiv.innerHTML = '';
+        for (let i = 0; i < count; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = `第${i+1}封信`;
+            btn.dataset.idx = i;
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(e.target.dataset.idx);
+                switchLetter(idx);
+            });
+            letterSelectDiv.appendChild(btn);
+        }
+    }
+    
     async function switchLetter(index) {
         if (!currentStep1 || !currentStep2) return;
+        if (index >= totalLetters) return;
         currentLetterIndex = index;
+        localStorage.setItem('last_letter_index', index);
+        // 高亮按钮
         document.querySelectorAll('.letter-select button').forEach((btn, i) => {
             if (i == index) btn.classList.add('active');
             else btn.classList.remove('active');
@@ -448,6 +465,7 @@
         setTimeout(() => letterBody.classList.add('fade-in'), 10);
     }
     
+    // 第一重验证：不再检查密码，只保存输入值，直接进入第二步
     function verifyStep1() {
         const inputVal = step1Input.value.trim();
         if (!inputVal) {
@@ -455,20 +473,16 @@
             step1Input.focus();
             return;
         }
-        if (STEP1_SECRETS.includes(inputVal)) {
-            currentStep1 = inputVal;
-            step1Panel.classList.add('hidden');
-            step2Panel.classList.remove('hidden');
-            step1Input.value = '';
-            clearError(step1Error);
-            step2Input.focus();
-        } else {
-            showError(step1Error, '❌ 密令错误');
-            step1Input.value = '';
-            step1Input.focus();
-        }
+        // 保存第一重密码，不进行任何前端验证
+        currentStep1 = inputVal;
+        step1Panel.classList.add('hidden');
+        step2Panel.classList.remove('hidden');
+        step1Input.value = '';
+        clearError(step1Error);
+        step2Input.focus();
     }
     
+    // 第二重验证：将两个密码一起发送给后端验证
     async function verifyStep2() {
         const inputVal = step2Input.value.trim();
         if (!inputVal) {
@@ -481,48 +495,46 @@
             fullReset();
             return;
         }
-        if (STEP2_SECRETS.includes(inputVal)) {
-            currentStep2 = inputVal;
-            step2Panel.classList.add('hidden');
-            contentPanel.classList.remove('hidden');
-            step2Input.value = '';
-            clearError(step2Error);
-            const success = await loadLetter(currentStep1, currentStep2, currentLetterIndex);
-            if (success) {
-                document.querySelectorAll('.letter-select button').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const idx = parseInt(e.target.dataset.idx);
-                        switchLetter(idx);
-                    });
-                });
-                const defaultBtn = document.querySelector('.letter-select button[data-idx="0"]');
-                if (defaultBtn) defaultBtn.classList.add('active');
-                resetAutoLockTimer();
-                bindActivity();
-            } else {
-                step2Panel.classList.remove('hidden');
-                contentPanel.classList.add('hidden');
+        
+        currentStep2 = inputVal;
+        
+        // 读取上次保存的信件索引
+        const savedIndex = localStorage.getItem('last_letter_index');
+        let targetIndex = 0;
+        if (savedIndex !== null && !isNaN(parseInt(savedIndex))) {
+            targetIndex = parseInt(savedIndex);
+        }
+        currentLetterIndex = targetIndex;
+        
+        // 显示加载状态
+        step2Panel.classList.add('hidden');
+        contentPanel.classList.remove('hidden');
+        step2Input.value = '';
+        clearError(step2Error);
+        
+        const success = await loadLetter(currentStep1, currentStep2, currentLetterIndex);
+        if (success) {
+            // 生成信件切换按钮（需要知道总数）
+            if (totalLetters > 0) {
+                generateLetterButtons(totalLetters);
+                const btns = document.querySelectorAll('.letter-select button');
+                if (btns[currentLetterIndex]) btns[currentLetterIndex].classList.add('active');
             }
+            resetAutoLockTimer();
+            bindActivity();
         } else {
-            try {
-                const res = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ step1: currentStep1, step2: inputVal })
-                });
-                const data = await res.json();
-                if (data.remainingAttempts !== undefined) {
-                    showError(step2Error, `❌ 密令错误`, data.remainingAttempts);
-                } else if (data.locked) {
-                    showError(step2Error, `❌ ${data.error}`);
-                } else {
-                    showError(step2Error, '❌ 密令错误');
-                }
-            } catch(e) {
-                showError(step2Error, '❌ 密令错误');
-            }
+            // 验证失败，回到第二步
+            step2Panel.classList.remove('hidden');
+            contentPanel.classList.add('hidden');
+            // 清空 currentStep1 和 currentStep2，让用户重新开始
+            currentStep1 = null;
+            currentStep2 = null;
             step2Input.value = '';
-            step2Input.focus();
+            step1Input.value = '';
+            step1Input.focus();
+            step1Panel.classList.remove('hidden');
+            step2Panel.classList.add('hidden');
+            showError(step2Error, '❌ 密码错误，请重新从第一重开始输入');
         }
     }
     
@@ -546,6 +558,7 @@
         fullReset();
     }
     
+    // 留言表单提交
     if (feedbackForm) {
         feedbackForm.addEventListener('submit', async (e) => {
             e.preventDefault();
