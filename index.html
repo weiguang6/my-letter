@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title> 双锁密信</title>
+    <title>风起日落 · 君安否</title>
     <style>
         /* ========== 爱情欢喜主题（默认） ========== */
         :root {
@@ -49,8 +49,11 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        /* ========== 背景图片设置 ========== */
         body {
-            background: radial-gradient(circle at 20% 30%, var(--bg-gradient-start), var(--bg-gradient-end));
+            background-image: url('https://raw.githubusercontent.com/weiguang6/my-images/main/bg.jpg'); /* ⚠️ 请替换为你的图片链接 */
+            background-size: cover;
+            background-position: center;
             background-attachment: fixed;
             font-family: var(--font-family);
             min-height: 100vh;
@@ -62,7 +65,14 @@
             position: relative;
             transition: background 0.3s;
         }
-        /* 背景全屏覆盖 */
+        body.theme-sailor {
+            background-image: url('https://raw.githubusercontent.com/weiguang6/my-images/main/bg-sailor.jpg'); /* ⚠️ 美少女主题背景，可替换或留空 */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* 半透明遮罩（提升文字可读性） */
         body::before {
             content: "";
             position: fixed;
@@ -70,8 +80,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 20% 30%, var(--bg-gradient-start), var(--bg-gradient-end));
-            z-index: -2;
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: brightness(0.92);
+            pointer-events: none;
+            z-index: 0;
         }
         /* 装饰元素 */
         body::after {
@@ -346,7 +358,6 @@
             border-radius: 24px;
             min-height: 90px;
         }
-        /* 增大“寄出回音”按钮 */
         #sendFeedbackBtn {
             font-size: 18px !important;
             letter-spacing: 2px;
@@ -489,29 +500,14 @@
 
 <script>
     // ========== 防止查看源代码 ==========
-    // 禁用右键菜单
     document.addEventListener('contextmenu', (e) => e.preventDefault());
-    // 禁用常用开发者工具快捷键
     document.addEventListener('keydown', (e) => {
-        // F12
-        if (e.key === 'F12') {
-            e.preventDefault();
-            return false;
-        }
-        // Ctrl+Shift+I, Ctrl+Shift+C, Ctrl+Shift+J
-        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C' || e.key === 'J')) {
-            e.preventDefault();
-            return false;
-        }
-        // Ctrl+U
-        if (e.ctrlKey && e.key === 'u') {
-            e.preventDefault();
-            return false;
-        }
+        if (e.key === 'F12') { e.preventDefault(); return false; }
+        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C' || e.key === 'J')) { e.preventDefault(); return false; }
+        if (e.ctrlKey && e.key === 'u') { e.preventDefault(); return false; }
     });
-    // ===================================
 
-    // ========== 完整功能逻辑 ==========
+    // ========== 功能逻辑 ==========
     const API_URL = '/api/letter';
     let step1Answer = null;
     let step2Answer = null;
