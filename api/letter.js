@@ -15,8 +15,8 @@ function loadLettersData() {
 }
 
 // ========== 双重验证密码 ==========
-const STEP1_SECRETS = ["启明星", "OpenSesame", "芝兰"];
-const STEP2_SECRETS = ["月光码头", "2026@Gate", "玉树"];
+const STEP1_SECRETS = ["北京"];
+const STEP2_SECRETS = ["八块腹肌"];
 
 // ========== 错误限制配置 ==========
 const MAX_FAIL_ATTEMPTS = 5;
